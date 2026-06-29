@@ -39,6 +39,29 @@ function sevColor(label: string): string {
     return C.cinza
 }
 
+// Rótulo da severidade (risk_rating) em PT-BR, alinhado aos rótulos de prioridade
+// dos demais cards (PRI_LABEL). O risk_rating chega da instância em inglês.
+function sevLabel(label: string): string {
+    const l = (label || '').toLowerCase()
+    if (l.indexOf('critic') >= 0 || l.indexOf('crítica') >= 0) return 'Crítica'
+    if (l.indexOf('high') >= 0 || l.indexOf('alta') >= 0) return 'Alta'
+    if (l.indexOf('medium') >= 0 || l.indexOf('média') >= 0 || l.indexOf('moder') >= 0) return 'Moderada'
+    if (l.indexOf('low') >= 0 || l.indexOf('baixa') >= 0) return 'Baixa'
+    if (l.indexOf('none') >= 0 || l.indexOf('nenhuma') >= 0) return 'Nenhuma'
+    return label || '—'
+}
+
+// Ordem de apresentação da severidade: da mais crítica para a mais baixa, "Nenhuma" por último.
+function sevRank(label: string): number {
+    const l = (label || '').toLowerCase()
+    if (l.indexOf('critic') >= 0 || l.indexOf('crítica') >= 0) return 0
+    if (l.indexOf('high') >= 0 || l.indexOf('alta') >= 0) return 1
+    if (l.indexOf('medium') >= 0 || l.indexOf('média') >= 0 || l.indexOf('moder') >= 0) return 2
+    if (l.indexOf('low') >= 0 || l.indexOf('baixa') >= 0) return 3
+    if (l.indexOf('none') >= 0 || l.indexOf('nenhuma') >= 0) return 4
+    return 5
+}
+
 // Chave de visibilidade que controla o card VR (mesma da engrenagem).
 const VR_VIS = 'sn_vul_vulnerable_item'
 
@@ -273,7 +296,10 @@ function VrCard({ vr }: { vr: ConsoleVr }) {
     const [open, setOpen] = useState(false)
     const shown = open ? vr.items : vr.items.slice(0, 5)
     const hiddenLoaded = vr.items.length - 5
-    const sevData: Datum[] = vr.bySeverity.map((s) => ({ label: s.label || '—', value: s.count, color: sevColor(s.label) }))
+    const sevData: Datum[] = vr.bySeverity
+        .slice()
+        .sort((a, b) => sevRank(a.label) - sevRank(b.label))
+        .map((s) => ({ label: sevLabel(s.label), value: s.count, color: sevColor(s.label) }))
     return (
         <div className="sol acc-vermelho">
             <div className="sol-hd">
@@ -395,7 +421,10 @@ export function PrincipalView({ scope, vis }: { scope: ScopeMode; vis: Visibilit
     // 4) Vulnerabilidades por severidade — donut; vazio se VR estiver desligado.
     const vulnData: Datum[] = useMemo(() => {
         if (!data || !data.vr || !vrVisible) return []
-        return data.vr.bySeverity.map((s) => ({ label: s.label || '—', value: s.count, color: sevColor(s.label) }))
+        return data.vr.bySeverity
+            .slice()
+            .sort((a, b) => sevRank(a.label) - sevRank(b.label))
+            .map((s) => ({ label: sevLabel(s.label), value: s.count, color: sevColor(s.label) }))
     }, [data, vrVisible])
 
     return (
