@@ -1,0 +1,177 @@
+<h2 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Mockup de dashboard de onboarding ALM com seletor de contexto SIGLA e três modos: Minha Carteira, Por SIGLA e Esteira.</h2>
+<style>
+.cns{font-family:var(--font-sans);color:var(--text-primary)}
+.cns *{box-sizing:border-box}
+.ctx{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--surface-2);border:0.5px solid var(--border);border-radius:12px}
+.ctx .brand{display:flex;align-items:center;gap:8px;font-weight:500;font-size:15px;white-space:nowrap}
+.ctx .brand i{color:var(--text-accent);font-size:20px}
+.ctx select{height:34px;width:auto;min-width:150px}
+.ctx .sp{flex:1}
+.ctx .srch{display:flex;align-items:center;gap:6px;color:var(--text-muted);font-size:13px;border:0.5px solid var(--border);border-radius:var(--radius);padding:0 10px;height:34px}
+.ctx .usr{width:32px;height:32px;border-radius:50%;background:var(--bg-accent);color:var(--text-accent);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500}
+.hint{display:flex;align-items:center;gap:10px;margin-top:10px;padding:10px 12px;background:var(--bg-accent);border-radius:var(--radius);font-size:13px;color:var(--text-accent)}
+.hint i:first-child{font-size:18px}
+.hint .x{margin-left:auto;cursor:pointer;opacity:.7}
+.tabs{display:flex;gap:4px;margin-top:14px;background:var(--surface-1);padding:4px;border-radius:var(--radius);width:fit-content}
+.tabs button{border:none;background:transparent;font-size:13px;padding:7px 14px;border-radius:6px;color:var(--text-secondary);cursor:pointer;font-family:inherit}
+.tabs button.on{background:var(--surface-2);color:var(--text-primary);font-weight:500;box-shadow:0 0 0 0.5px var(--border)}
+.tabs button .new{font-size:10px;background:var(--bg-success);color:var(--text-success);padding:1px 6px;border-radius:10px;margin-left:6px}
+.lead{font-size:13px;color:var(--text-secondary);margin:16px 0 12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.dc{background:var(--surface-2);border:0.5px solid var(--border);border-radius:12px;padding:14px}
+.dc .hd{display:flex;align-items:flex-start;gap:10px}
+.dc .ic{width:34px;height:34px;border-radius:var(--radius);background:var(--surface-1);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.dc .ttl{font-size:14px;font-weight:500;line-height:1.3}
+.dc .sub{font-size:11px;color:var(--text-muted);line-height:1.4;margin-top:2px}
+.dc .kpi{margin-left:auto;font-size:22px;font-weight:500;line-height:1}
+.dc ul{list-style:none;margin:12px 0 0;padding:10px 0 0;border-top:0.5px solid var(--border)}
+.dc li{display:flex;align-items:center;gap:8px;padding:5px 0;font-size:12px}
+.dc li .id{font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);white-space:nowrap}
+.dc li .ds{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dc li.empty{color:var(--text-muted);justify-content:center;padding:8px 0}
+.pill{font-size:10px;padding:2px 7px;border-radius:10px;white-space:nowrap}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:14px}
+.mc{background:var(--surface-1);border-radius:var(--radius);padding:12px}
+.mc .l{font-size:12px;color:var(--text-secondary)}
+.mc .v{font-size:22px;font-weight:500;margin-top:2px}
+.esteira{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.col{background:var(--surface-1);border-radius:var(--radius);padding:8px}
+.col .ch{font-size:11px;font-weight:500;text-align:center;padding-bottom:8px;color:var(--text-secondary)}
+.col .ch .rtc{display:block;font-size:9px;color:var(--text-muted);font-weight:400}
+.mini{background:var(--surface-2);border:0.5px solid var(--border);border-radius:6px;padding:6px;margin-bottom:6px}
+.mini .id{font-family:var(--font-mono);font-size:10px;color:var(--text-secondary)}
+.mini .ds{font-size:11px;line-height:1.3;margin-top:2px}
+.trace{margin-top:12px;background:var(--surface-2);border:0.5px solid var(--border);border-radius:12px;padding:12px 14px}
+.trace .tl{font-size:12px;color:var(--text-secondary);margin-bottom:8px}
+.trace .tl .rtc{color:var(--text-muted);font-size:11px}
+.tchain{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:12px}
+.tnode{font-family:var(--font-mono);font-size:11px;padding:4px 9px;border-radius:6px;background:var(--surface-1)}
+.tchain i{color:var(--text-muted)}
+</style>
+<div class="cns">
+  <div class="ctx">
+    <span class="brand"><i class="ti ti-layout-dashboard" aria-hidden="true"></i>Console ALM · CAIXA</span>
+    <label style="font-size:11px;color:var(--text-muted)">Contexto / Área (SIGLA)</label>
+    <select id="sigla">
+      <option value="">Todas</option>
+      <option value="SIAME_RJ">SIAME_RJ</option>
+      <option value="SIANA">SIANA</option>
+      <option value="SIAOC">SIAOC</option>
+    </select>
+    <span class="sp"></span>
+    <span class="srch"><i class="ti ti-search" aria-hidden="true"></i>Buscar</span>
+    <span class="usr">GM</span>
+  </div>
+  <div class="hint" id="hint">
+    <i class="ti ti-info-circle" aria-hidden="true"></i>
+    <span id="hinttxt">Você está em <b>Minha Carteira</b> — o equivalente ao seu “My Open Work Items” do RTC.</span>
+    <i class="ti ti-x x" id="hintx" aria-label="Dispensar dica" role="button"></i>
+  </div>
+  <div class="tabs">
+    <button data-m="carteira" class="on">Minha Carteira</button>
+    <button data-m="sigla">Por SIGLA</button>
+    <button data-m="esteira">Esteira<span class="new">novo</span></button>
+  </div>
+  <div id="lead" class="lead"></div>
+  <div id="stage"></div>
+</div>
+<script>
+(function(){
+  var DOMAINS=[
+    {k:'spm', icon:'ti-folder', col:'#1D9E75', rtc:'Necessidades', sn:'Demandas · Projetos (SPM)', phase:'portfolio', pl:'Portfólio', plr:'Plano de Projeto'},
+    {k:'req', icon:'ti-file-text', col:'#D85A30', rtc:'Requisitos', sn:'Requisição de Negócio (x_caixa_alm)', phase:'requisitos', pl:'Requisitos', plr:'Requisito (RDNG)'},
+    {k:'agil', icon:'ti-layout-kanban', col:'#7F77DD', rtc:'Itens de Trabalho', sn:'Stories · Epics', phase:'dev', pl:'Desenvolvimento', plr:'Item de Trabalho'},
+    {k:'test', icon:'ti-checkup-list', col:'#639922', rtc:'Casos de Teste', sn:'Tests (TM2.0)', phase:'testes', pl:'Testes', plr:'Caso de Teste (RQM)'},
+    {k:'itsm', icon:'ti-lifebuoy', col:'#378ADD', rtc:'Operação', sn:'Incidents · Problems · Changes', phase:'operacao', pl:'Operação', plr:'Chamados'},
+    {k:'eap', icon:'ti-building-bank', col:'#888780', rtc:'Área de Projeto', sn:'Aplicações (EA/APM)', phase:'portfolio', pl:'Portfólio', plr:'Área de Projeto'}
+  ];
+  var ST={
+    'Aberto':['var(--bg-accent)','var(--text-accent)'],
+    'Em andamento':['var(--bg-warning)','var(--text-warning)'],
+    'Em análise':['var(--bg-warning)','var(--text-warning)'],
+    'Aprovado':['var(--bg-success)','var(--text-success)'],
+    'Ativo':['var(--bg-success)','var(--text-success)'],
+    'Pendente':['var(--surface-1)','var(--text-secondary)'],
+    'Bloqueado':['var(--bg-danger)','var(--text-danger)']
+  };
+  var R=[
+    {d:'itsm',id:'INC0012',ds:'Falha no login do portal',st:'Em andamento',sig:'SIAME_RJ',mine:1},
+    {d:'itsm',id:'CHG0021',ds:'Janela de deploy SIAME',st:'Aberto',sig:'SIAME_RJ',mine:0},
+    {d:'itsm',id:'INC0034',ds:'Lentidão no relatório mensal',st:'Aberto',sig:'SIANA',mine:1},
+    {d:'itsm',id:'PRB0007',ds:'Causa raiz de timeout',st:'Em análise',sig:'SIAOC',mine:1},
+    {d:'agil',id:'STRY045',ds:'Tela de consulta de saldo',st:'Em andamento',sig:'SIAME_RJ',mine:1},
+    {d:'agil',id:'STRY046',ds:'Validação de CPF na abertura',st:'Aberto',sig:'SIAME_RJ',mine:1},
+    {d:'agil',id:'STRY051',ds:'Exportação de extrato em CSV',st:'Em andamento',sig:'SIANA',mine:0},
+    {d:'agil',id:'STRY060',ds:'Dashboard gerencial',st:'Aberto',sig:'SIAOC',mine:0},
+    {d:'req',id:'BR-001',ds:'Consulta de extrato consolidado',st:'Em análise',sig:'SIAME_RJ',mine:1},
+    {d:'req',id:'BR-002',ds:'Regras de bloqueio cautelar',st:'Aprovado',sig:'SIAME_RJ',mine:0},
+    {d:'req',id:'BR-010',ds:'Auditoria de acesso restrito',st:'Em análise',sig:'SIANA',mine:0},
+    {d:'req',id:'BR-018',ds:'Painel regulatório BACEN',st:'Pendente',sig:'SIAOC',mine:0},
+    {d:'test',id:'TC-014',ds:'Login com perfil restrito',st:'Pendente',sig:'SIAME_RJ',mine:1},
+    {d:'test',id:'TC-022',ds:'Exportação validada',st:'Aprovado',sig:'SIANA',mine:0},
+    {d:'test',id:'TC-030',ds:'Carga de dados em lote',st:'Em andamento',sig:'SIAOC',mine:0},
+    {d:'spm',id:'DMND0009',ds:'Modernização do SIAME',st:'Em andamento',sig:'SIAME_RJ',mine:0},
+    {d:'spm',id:'DMND0012',ds:'Integração SIANA × core',st:'Pendente',sig:'SIANA',mine:0},
+    {d:'eap',id:'APP-SIAME',ds:'Aplicação SIAME_RJ',st:'Ativo',sig:'SIAME_RJ',mine:0},
+    {d:'eap',id:'APP-SIANA',ds:'Aplicação SIANA',st:'Ativo',sig:'SIANA',mine:0}
+  ];
+  function pill(s){var c=ST[s]||ST['Pendente'];return '<span class="pill" style="background:'+c[0]+';color:'+c[1]+'">'+s+'</span>';}
+  function card(dom,recs){
+    var li=recs.length?recs.slice(0,3).map(function(r){
+      return '<li><span class="id">'+r.id+'</span><span class="ds">'+r.ds+'</span>'+pill(r.st)+'</li>';
+    }).join(''):'<li class="empty">Nenhum item</li>';
+    var more=recs.length>3?'<li class="empty">+ '+(recs.length-3)+' itens</li>':'';
+    return '<div class="dc"><div class="hd"><div class="ic"><i class="ti '+dom.icon+'" style="color:'+dom.col+'" aria-hidden="true"></i></div>'
+      +'<div><div class="ttl">'+dom.rtc+'</div><div class="sub">'+dom.sn+'</div></div>'
+      +'<div class="kpi">'+recs.length+'</div></div><ul>'+li+more+'</ul></div>';
+  }
+  var stage=document.getElementById('stage'), lead=document.getElementById('lead');
+  var mode='carteira';
+  function curSig(){return document.getElementById('sigla').value;}
+  function render(){
+    var sig=curSig();
+    if(mode==='carteira'){
+      lead.textContent='Itens atribuídos a você, reunidos de todas as ferramentas — sem precisar abrir RTC, RDNG e RQM separados.';
+      var g=DOMAINS.map(function(d){return card(d,R.filter(function(r){return r.d===d.k && r.mine;}));}).join('');
+      stage.innerHTML='<div class="grid">'+g+'</div>';
+    }else if(mode==='sigla'){
+      var s=sig||'SIAME_RJ';
+      var inSig=R.filter(function(r){return r.sig===s;});
+      lead.innerHTML='Tudo do sistema <b>'+s+'</b> num só lugar — o equivalente a abrir a Área de Projeto daquele sistema no RTC.';
+      var k='<div class="kpis">'
+        +'<div class="mc"><div class="l">Requisitos</div><div class="v">'+inSig.filter(function(r){return r.d==='req';}).length+'</div></div>'
+        +'<div class="mc"><div class="l">Itens de Trabalho</div><div class="v">'+inSig.filter(function(r){return r.d==='agil';}).length+'</div></div>'
+        +'<div class="mc"><div class="l">Casos de Teste</div><div class="v">'+inSig.filter(function(r){return r.d==='test';}).length+'</div></div>'
+        +'<div class="mc"><div class="l">Operação</div><div class="v">'+inSig.filter(function(r){return r.d==='itsm';}).length+'</div></div></div>';
+      var g=DOMAINS.map(function(d){return card(d,inSig.filter(function(r){return r.d===d.k;}));}).join('');
+      stage.innerHTML=k+'<div class="grid">'+g+'</div>';
+    }else{
+      var pool=sig?R.filter(function(r){return r.sig===sig;}):R;
+      lead.innerHTML='A rastreabilidade ponta a ponta que no RTC você navegava clicando link por link (<i>Implementado Por</i>, <i>Validado Por</i>) — agora montada sozinha.'+(sig?' Filtrado por <b>'+sig+'</b>.':'');
+      var phases=[['portfolio','Portfólio','Plano de Projeto'],['requisitos','Requisitos','Requisito (RDNG)'],['dev','Desenvolvimento','Item de Trabalho'],['testes','Testes','Caso de Teste (RQM)'],['operacao','Operação','Chamados']];
+      var cols=phases.map(function(p){
+        var doms=DOMAINS.filter(function(d){return d.phase===p[0];}).map(function(d){return d.k;});
+        var items=pool.filter(function(r){return doms.indexOf(r.d)>-1;});
+        var body=items.length?items.map(function(r){return '<div class="mini"><div class="id">'+r.id+'</div><div class="ds">'+r.ds+'</div></div>';}).join(''):'<div class="mini" style="text-align:center;color:var(--text-muted);font-size:11px">—</div>';
+        return '<div class="col"><div class="ch">'+p[1]+'<span class="rtc">'+p[2]+'</span></div>'+body+'</div>';
+      }).join('');
+      var tr='<div class="trace"><div class="tl">Rastreabilidade <span class="rtc">(antes: links OSLC navegados na mão)</span></div>'
+        +'<div class="tchain"><span class="tnode">BR-001</span><i class="ti ti-arrow-right" aria-hidden="true"></i><span class="tnode">STRY045</span><i class="ti ti-arrow-right" aria-hidden="true"></i><span class="tnode">TC-014</span>'
+        +'<span style="color:var(--text-muted);font-size:11px;margin-left:8px">requisito → item de trabalho → teste</span></div></div>';
+      stage.innerHTML='<div class="esteira">'+cols+'</div>'+tr;
+    }
+  }
+  var btns=document.querySelectorAll('.tabs button');
+  btns.forEach(function(b){b.addEventListener('click',function(){
+    mode=b.getAttribute('data-m');
+    btns.forEach(function(x){x.classList.remove('on');});b.classList.add('on');
+    render();
+  });});
+  document.getElementById('sigla').addEventListener('change',function(){
+    if(this.value){mode='sigla';btns.forEach(function(x){x.classList.toggle('on',x.getAttribute('data-m')==='sigla');});}
+    render();
+  });
+  document.getElementById('hintx').addEventListener('click',function(){document.getElementById('hint').style.display='none';});
+  render();
+})();
+</script>

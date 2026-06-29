@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel Unificado · CAIXA — Esteira C: Grafo de rastreabilidade</title>
+<style>
+  :root{
+    --caixa-azul:#1c60ab; --caixa-azul-escuro:#003a70; --caixa-laranja:#ef9c00;
+    --caixa-turquesa:#3fb6a8; --vermelho:#d64545;
+    --simplifica-grad:linear-gradient(100deg,#003a70 0%,#1c60ab 45%,#3fb6a8 100%);
+    --bg:#f4f6fa; --surface:#ffffff; --surface-2:#fbfcfe; --ink:#1a2433; --ink-soft:#5a6b80;
+    --ink-mute:#8c99ab; --line:#e4e9f0; --radius:14px;
+    --shadow:0 1px 3px rgba(16,38,76,.08),0 8px 24px rgba(16,38,76,.06);
+    --d-spm:var(--caixa-turquesa); --d-req:var(--caixa-laranja); --d-agil:#7b6fd6;
+    --d-test:#4f9d3a; --d-itsm:var(--caixa-azul); --d-eap:#7a879b;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:14px}
+  .ic svg{width:1em;height:1em;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;display:block}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+
+  .top{display:flex;align-items:center;gap:18px;padding:14px 24px;background:var(--simplifica-grad);box-shadow:var(--shadow);color:#fff}
+  .top .brand{display:flex;align-items:center;gap:10px;font-weight:600;font-size:15px;white-space:nowrap}
+  .top .brand .mk{width:30px;height:30px;border-radius:9px;background:rgba(255,255,255,.16);display:flex;align-items:center;justify-content:center;font-size:17px}
+  .top .brand small{display:block;font-weight:400;font-size:11px;opacity:.8;margin-top:1px}
+  .ctx{display:flex;align-items:center;gap:8px;margin-left:8px}
+  .ctx label{font-size:11px;opacity:.85;text-transform:uppercase;letter-spacing:.04em}
+  .ctx select{height:34px;border:none;border-radius:9px;padding:0 12px;font-size:13px;font-weight:600;background:rgba(255,255,255,.92);color:var(--caixa-azul-escuro);cursor:pointer;min-width:140px}
+  .sp{flex:1}
+  .srch{display:flex;align-items:center;gap:7px;font-size:13px;color:#fff;background:rgba(255,255,255,.16);border-radius:9px;padding:0 12px;height:34px}
+  .usr{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.92);color:var(--caixa-azul-escuro);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700}
+
+  .wrap{max-width:1180px;margin:0 auto;padding:18px 24px 48px}
+  .ideabadge{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:600;color:var(--caixa-azul-escuro);background:#e7f0fa;border:1px solid #cfe0f2;border-radius:20px;padding:4px 12px}
+  .tabs{display:flex;gap:4px;margin-top:16px;background:#e9eef5;padding:4px;border-radius:12px;width:fit-content}
+  .tabs button{border:none;background:transparent;font-size:13px;padding:8px 16px;border-radius:8px;color:var(--ink-soft);cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:7px}
+  .tabs button.on{background:#fff;color:var(--caixa-azul-escuro);font-weight:600;box-shadow:var(--shadow)}
+  .tabs .new{font-size:10px;background:var(--caixa-laranja);color:#fff;padding:1px 7px;border-radius:10px;font-weight:700}
+  .lead{font-size:13px;color:var(--ink-soft);margin:18px 2px 14px;line-height:1.5}.lead b{color:var(--ink)}
+
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:16px}
+  .mc{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:13px 15px;box-shadow:var(--shadow)}
+  .mc .l{font-size:12px;color:var(--ink-soft)}
+  .mc .v{font-size:24px;font-weight:600;margin-top:3px;color:var(--caixa-azul-escuro)}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(248px,1fr));gap:14px}
+  .dc{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)}
+  .dc .hd{display:flex;align-items:flex-start;gap:11px}
+  .dc .icb{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;color:#fff}
+  .dc .ttl{font-size:14px;font-weight:600;line-height:1.25;color:var(--ink)}
+  .dc .sub{font-size:11px;color:var(--ink-mute);line-height:1.35;margin-top:3px}
+  .dc .kpi{margin-left:auto;font-size:26px;font-weight:600;line-height:1;color:var(--ink)}
+  .dc ul{list-style:none;margin:13px 0 0;padding:11px 0 0;border-top:1px solid var(--line)}
+  .dc li{display:flex;align-items:center;gap:9px;padding:6px 0;font-size:12.5px}
+  .dc li .id{font-size:11px;color:var(--ink-soft);white-space:nowrap}
+  .dc li .ds{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink)}
+  .dc li.empty{color:var(--ink-mute);justify-content:center;padding:10px 0;font-style:italic}
+  .pill{font-size:10px;padding:2px 8px;border-radius:10px;white-space:nowrap;font-weight:600}
+
+  /* ===== Esteira C — Grafo ===== */
+  .graphwrap{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:6px 6px 14px;overflow-x:auto}
+  .phbar{display:grid;grid-template-columns:repeat(5,216px);padding:10px 0 4px}
+  .phbar .ph{text-align:center;font-size:11px;font-weight:700;color:var(--caixa-azul-escuro);text-transform:uppercase;letter-spacing:.03em}
+  .graph{position:relative;width:1080px;margin:0 auto}
+  .graph svg.edges{position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+  .gnode{position:absolute;width:170px;height:50px;background:var(--surface-2);border:1px solid var(--line);
+    border-left:3px solid var(--ink-mute);border-radius:9px;padding:6px 9px;z-index:1;cursor:pointer;transition:.15s;overflow:hidden}
+  .gnode:hover{box-shadow:var(--shadow)}
+  .gnode .gid{font-size:10px;color:var(--ink-soft)}
+  .gnode .gds{font-size:11px;color:var(--ink);line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+  .gnode.gap{border-color:var(--vermelho);border-left-color:var(--vermelho);background:#fdf2f2}
+  .gnode.gap::after{content:"sem teste";position:absolute;top:5px;right:7px;font-size:8px;font-weight:700;color:var(--vermelho)}
+  .graph.sel .gnode{opacity:.28}
+  .graph.sel .gnode.hl{opacity:1;box-shadow:0 0 0 2px var(--caixa-laranja),var(--shadow)}
+  .graph.sel .gnode.anchor{box-shadow:0 0 0 2px var(--caixa-azul-escuro),var(--shadow)}
+  .legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:16px;padding:12px 14px;background:#eef2f7;border-radius:12px;font-size:11px;color:var(--ink-soft)}
+  .legend .lg{display:flex;align-items:center;gap:6px}.legend .sw{width:10px;height:10px;border-radius:3px}
+  .legend .gapk{width:10px;height:10px;border-radius:3px;border:1.5px solid var(--vermelho);background:#fdf2f2}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <symbol id="ic-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></symbol>
+  <symbol id="ic-route" viewBox="0 0 24 24"><circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M8 19h6a4 4 0 0 0 0-8H8a4 4 0 0 1 0-8h2"/></symbol>
+  <symbol id="ic-spm" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></symbol>
+  <symbol id="ic-req" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><polyline points="14 3 14 8 19 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></symbol>
+  <symbol id="ic-agil" viewBox="0 0 24 24"><rect x="4" y="4" width="4" height="13"/><rect x="10" y="4" width="4" height="8"/><rect x="16" y="4" width="4" height="16"/></symbol>
+  <symbol id="ic-test" viewBox="0 0 24 24"><path d="M9 11l3 3 9-9"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></symbol>
+  <symbol id="ic-itsm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5"/><line x1="12" y1="3" x2="12" y2="8.5"/><line x1="12" y1="15.5" x2="12" y2="21"/><line x1="3" y1="12" x2="8.5" y2="12"/><line x1="15.5" y1="12" x2="21" y2="12"/></symbol>
+  <symbol id="ic-eap" viewBox="0 0 24 24"><line x1="3" y1="21" x2="21" y2="21"/><polyline points="3 10 12 4 21 10"/><line x1="5" y1="10" x2="5" y2="21"/><line x1="10" y1="10" x2="10" y2="21"/><line x1="14" y1="10" x2="14" y2="21"/><line x1="19" y1="10" x2="19" y2="21"/></symbol>
+</defs></svg>
+
+<div class="top">
+  <div class="brand"><span class="mk">▱</span><span>Simplifica.CAIXA<small>Painel Unificado</small></span></div>
+  <div class="ctx">
+    <label>Área (SIGLA)</label>
+    <select id="sigla">
+      <option value="">Todas as áreas</option>
+      <option value="SIAME_RJ">SIAME_RJ</option>
+      <option value="SIANA">SIANA</option>
+      <option value="SIAOC">SIAOC</option>
+    </select>
+  </div>
+  <span class="sp"></span>
+  <span class="srch"><span class="ic"><svg><use href="#ic-search"/></svg></span>Buscar item, requisito, chamado…</span>
+  <span class="usr">GM</span>
+</div>
+
+<div class="wrap">
+  <span class="ideabadge"><span class="ic"><svg><use href="#ic-route"/></svg></span>Ideia C · Grafo de rastreabilidade</span>
+  <div class="tabs" id="tabs">
+    <button data-m="carteira" class="on">Minha Carteira</button>
+    <button data-m="sigla">Por SIGLA</button>
+    <button data-m="esteira">Esteira <span class="new">novo</span></button>
+  </div>
+  <div id="lead" class="lead"></div>
+  <div id="stage"></div>
+</div>
+
+<script>
+var DOMAINS=[
+  {k:'spm', icon:'ic-spm', col:'var(--d-spm)', title:'Demandas e Projetos',          sub:'SPM',                  phase:'portfolio'},
+  {k:'req', icon:'ic-req', col:'var(--d-req)', title:'Requisitos',                   sub:'Requisição de Negócio',phase:'requisitos'},
+  {k:'agil',icon:'ic-agil',col:'var(--d-agil)',title:'Stories e Epics',              sub:'Ágil / SAFe',          phase:'dev'},
+  {k:'test',icon:'ic-test',col:'var(--d-test)',title:'Casos de Teste',               sub:'Test Management',      phase:'testes'},
+  {k:'itsm',icon:'ic-itsm',col:'var(--d-itsm)',title:'Incidentes, Problemas e Mudanças', sub:'ITSM',             phase:'operacao'},
+  {k:'eap', icon:'ic-eap', col:'var(--d-eap)', title:'Aplicações',                   sub:'EA / APM',             phase:'portfolio'}
+];
+var DMAP={}; DOMAINS.forEach(function(d){DMAP[d.k]=d;});
+var PHASES=[
+  {k:'portfolio', label:'Portfólio'},
+  {k:'requisitos',label:'Requisitos'},
+  {k:'dev',       label:'Desenvolvimento'},
+  {k:'testes',    label:'Testes'},
+  {k:'operacao',  label:'Operação'}
+];
+var ST={
+  'Aberto':['#e7f0fa','#1c60ab'], 'Em andamento':['#fff3da','#a36a00'], 'Em análise':['#fff3da','#a36a00'],
+  'Aprovado':['#e3f3ea','#1f7a44'], 'Ativo':['#e3f3ea','#1f7a44'], 'Pendente':['#eef2f7','#5a6b80'], 'Bloqueado':['#fbe6e6','#c0392b']
+};
+var R=[
+  {d:'spm', id:'DMND0009', ds:'Modernização do SIAME',        st:'Em andamento', sig:'SIAME_RJ', mine:0, up:null},
+  {d:'eap', id:'APP-SIAME',ds:'Aplicação SIAME_RJ',           st:'Ativo',        sig:'SIAME_RJ', mine:0, up:null},
+  {d:'req', id:'BR-001',   ds:'Consulta de extrato consolidado', st:'Em análise', sig:'SIAME_RJ', mine:1, up:'DMND0009'},
+  {d:'req', id:'BR-002',   ds:'Regras de bloqueio cautelar',  st:'Aprovado',     sig:'SIAME_RJ', mine:0, up:'DMND0009'},
+  {d:'agil',id:'STRY045',  ds:'Tela de consulta de saldo',    st:'Em andamento', sig:'SIAME_RJ', mine:1, up:'BR-001'},
+  {d:'agil',id:'STRY046',  ds:'Validação de CPF na abertura', st:'Aberto',       sig:'SIAME_RJ', mine:1, up:'BR-002'},
+  {d:'test',id:'TC-015',   ds:'Extrato consolidado validado', st:'Aprovado',     sig:'SIAME_RJ', mine:0, up:'STRY045'},
+  {d:'test',id:'TC-014',   ds:'Login com perfil restrito',    st:'Pendente',     sig:'SIAME_RJ', mine:1, up:'STRY046'},
+  {d:'itsm',id:'INC0012',  ds:'Falha no login do portal',     st:'Em andamento', sig:'SIAME_RJ', mine:1, up:'STRY046'},
+  {d:'itsm',id:'CHG0021',  ds:'Janela de deploy SIAME',       st:'Aberto',       sig:'SIAME_RJ', mine:0, up:'STRY045'},
+  {d:'spm', id:'DMND0012', ds:'Integração SIANA × core',      st:'Em andamento', sig:'SIANA', mine:0, up:null},
+  {d:'eap', id:'APP-SIANA',ds:'Aplicação SIANA',              st:'Ativo',        sig:'SIANA', mine:0, up:null},
+  {d:'req', id:'BR-010',   ds:'Auditoria de acesso restrito', st:'Em análise',   sig:'SIANA', mine:0, up:'DMND0012'},
+  {d:'agil',id:'STRY051',  ds:'Exportação de extrato em CSV', st:'Em andamento', sig:'SIANA', mine:0, up:'BR-010'},
+  {d:'test',id:'TC-022',   ds:'Exportação validada',          st:'Aprovado',     sig:'SIANA', mine:0, up:'STRY051'},
+  {d:'itsm',id:'INC0034',  ds:'Lentidão no relatório mensal', st:'Aberto',       sig:'SIANA', mine:1, up:'STRY051'},
+  {d:'req', id:'BR-018',   ds:'Painel regulatório BACEN',     st:'Pendente',     sig:'SIAOC', mine:0, up:null},
+  {d:'agil',id:'STRY060',  ds:'Dashboard gerencial',          st:'Aberto',       sig:'SIAOC', mine:0, up:'BR-018'},
+  {d:'test',id:'TC-030',   ds:'Carga de dados em lote',       st:'Em andamento', sig:'SIAOC', mine:0, up:'STRY060'},
+  {d:'itsm',id:'PRB0007',  ds:'Causa raiz de timeout',        st:'Em análise',   sig:'SIAOC', mine:1, up:null}
+];
+var RMAP={}; R.forEach(function(r){RMAP[r.id]=r;});
+
+function pill(s){var c=ST[s]||ST['Pendente'];return '<span class="pill" style="background:'+c[0]+';color:'+c[1]+'">'+s+'</span>';}
+function ic(id){return '<span class="ic"><svg><use href="#'+id+'"/></svg></span>';}
+function curSig(){return document.getElementById('sigla').value;}
+
+function card(dom,recs){
+  var li = recs.length ? recs.slice(0,3).map(function(r){
+    return '<li><span class="id mono">'+r.id+'</span><span class="ds">'+r.ds+'</span>'+pill(r.st)+'</li>';
+  }).join('') : '<li class="empty">Nenhum item nesta visão</li>';
+  var more = recs.length>3 ? '<li class="empty">+ '+(recs.length-3)+' itens</li>' : '';
+  return '<div class="dc"><div class="hd">'
+    +'<div class="icb" style="background:'+dom.col+'">'+ic(dom.icon)+'</div>'
+    +'<div><div class="ttl">'+dom.title+'</div><div class="sub">'+dom.sub+'</div></div>'
+    +'<div class="kpi">'+recs.length+'</div></div><ul>'+li+more+'</ul></div>';
+}
+
+function phaseIdx(r){var p=DMAP[r.d].phase;for(var i=0;i<PHASES.length;i++)if(PHASES[i].k===p)return i;return 99;}
+function lineage(id){
+  var set={}, r=RMAP[id];
+  var cur=r; while(cur && cur.up){set[cur.up]=true; cur=RMAP[cur.up];}
+  var q=[id]; while(q.length){var x=q.shift(); R.forEach(function(o){if(o.up===x && !set[o.id]){set[o.id]=true; q.push(o.id);}});}
+  set[id]=true; return set;
+}
+function hasTestDown(id){
+  var q=[id], seen={};
+  while(q.length){var x=q.shift(); var kids=R.filter(function(o){return o.up===x;});
+    for(var i=0;i<kids.length;i++){if(kids[i].d==='test')return true; if(!seen[kids[i].id]){seen[kids[i].id]=1;q.push(kids[i].id);}}}
+  return false;
+}
+var selId=null;
+var COLW=216, NODEW=170, NODEH=50, X0=23, Y0=18, ROW=66;
+
+function renderEsteira(stage,lead){
+  var sig=curSig();
+  var pool=sig?R.filter(function(r){return r.sig===sig;}):R;
+  var nodes=pool.filter(function(r){return r.d!=='eap';});
+  lead.innerHTML='O <b>mapa de relações</b> entre os módulos do painel. Clique num nó para isolar sua cadeia; nós em vermelho são <b>requisitos/itens sem teste</b> (lacuna de cobertura).'+(sig?' Filtrado por <b>'+sig+'</b>.':'');
+
+  var rowByPhase={}; var pos={};
+  nodes.forEach(function(r){
+    var pi=phaseIdx(r); rowByPhase[pi]=(rowByPhase[pi]||0);
+    pos[r.id]={x:X0+pi*COLW, y:Y0+rowByPhase[pi]*ROW, pi:pi};
+    rowByPhase[pi]++;
+  });
+  var maxRows=Math.max.apply(null,Object.keys(rowByPhase).map(function(k){return rowByPhase[k];}).concat([1]));
+  var H=Y0+maxRows*ROW+4;
+
+  var edges=nodes.filter(function(r){return r.up && pos[r.up];}).map(function(r){
+    var a=pos[r.up], b=pos[r.id];
+    var x1=a.x+NODEW, y1=a.y+NODEH/2, x2=b.x, y2=b.y+NODEH/2; var c=(x2-x1)/2;
+    return '<path data-from="'+r.up+'" data-to="'+r.id+'" d="M'+x1+' '+y1+' C'+(x1+c)+' '+y1+','+(x2-c)+' '+y2+','+x2+' '+y2+'" fill="none" stroke="var(--line)" stroke-width="2"/>';
+  }).join('');
+
+  var ndiv=nodes.map(function(r){
+    var p=pos[r.id]; var gap=((r.d==='req'||r.d==='agil') && !hasTestDown(r.id));
+    return '<div class="gnode'+(gap?' gap':'')+'" data-id="'+r.id+'" style="left:'+p.x+'px;top:'+p.y+'px;border-left-color:'+DMAP[r.d].col+'">'
+      +'<div class="gid mono">'+r.id+'</div><div class="gds">'+r.ds+'</div></div>';
+  }).join('');
+
+  var phbar='<div class="phbar">'+PHASES.map(function(p){return '<div class="ph">'+p.label+'</div>';}).join('')+'</div>';
+  var legend='<div class="legend">'+DOMAINS.filter(function(d){return d.k!=='eap';}).map(function(d){
+    return '<span class="lg"><span class="sw" style="background:'+d.col+'"></span>'+d.title+'</span>';
+  }).join('')+'<span class="lg"><span class="gapk"></span>Lacuna de cobertura (sem teste)</span></div>';
+
+  stage.innerHTML='<div class="graphwrap">'+phbar
+    +'<div class="graph" id="graph" style="height:'+H+'px">'
+    +'<svg class="edges" viewBox="0 0 1080 '+H+'" preserveAspectRatio="none">'+edges+'</svg>'
+    +ndiv+'</div></div>'+legend;
+
+  document.querySelectorAll('#graph .gnode').forEach(function(n){
+    n.addEventListener('click',function(){selId=(selId===n.getAttribute('data-id'))?null:n.getAttribute('data-id'); paint();});
+  });
+  paint();
+}
+function paint(){
+  var g=document.getElementById('graph'); if(!g) return;
+  var set=selId?lineage(selId):null;
+  g.classList.toggle('sel',!!set);
+  g.querySelectorAll('.gnode').forEach(function(n){
+    var id=n.getAttribute('data-id');
+    n.classList.toggle('hl',set?!!set[id]:false);
+    n.classList.toggle('anchor',id===selId);
+  });
+  g.querySelectorAll('svg.edges path').forEach(function(p){
+    var on=set && set[p.getAttribute('data-from')] && set[p.getAttribute('data-to')];
+    p.setAttribute('stroke', on?'var(--caixa-laranja)':(set?'#eef2f7':'var(--line)'));
+    p.setAttribute('stroke-width', on?'3':'2');
+  });
+}
+
+var stage=document.getElementById('stage'), lead=document.getElementById('lead');
+var mode='carteira';
+function render(){
+  selId=null;
+  var sig=curSig();
+  if(mode==='carteira'){
+    lead.innerHTML='Itens atribuídos a <b>você</b>, reunidos de todos os módulos do painel num só lugar.';
+    var g=DOMAINS.map(function(d){return card(d,R.filter(function(r){return r.d===d.k && r.mine;}));}).join('');
+    stage.innerHTML='<div class="grid">'+g+'</div>';
+  }else if(mode==='sigla'){
+    var s=sig||'SIAME_RJ';
+    var inSig=R.filter(function(r){return r.sig===s;});
+    lead.innerHTML='Tudo do sistema <b>'+s+'</b> reunido — demandas, requisitos, stories, testes e operação.';
+    var kpiDoms=[['req','Requisitos'],['agil','Stories e Epics'],['test','Casos de Teste'],['itsm','ITSM']];
+    var k='<div class="kpis">'+kpiDoms.map(function(x){
+      return '<div class="mc"><div class="l">'+x[1]+'</div><div class="v">'+inSig.filter(function(r){return r.d===x[0];}).length+'</div></div>';
+    }).join('')+'</div>';
+    var g=DOMAINS.map(function(d){return card(d,inSig.filter(function(r){return r.d===d.k;}));}).join('');
+    stage.innerHTML=k+'<div class="grid">'+g+'</div>';
+  }else{
+    renderEsteira(stage,lead);
+  }
+}
+var btns=document.querySelectorAll('#tabs button');
+btns.forEach(function(b){b.addEventListener('click',function(){
+  mode=b.getAttribute('data-m'); btns.forEach(function(x){x.classList.toggle('on',x===b);}); render();
+});});
+document.getElementById('sigla').addEventListener('change',function(){
+  if(this.value){mode='sigla';btns.forEach(function(x){x.classList.toggle('on',x.getAttribute('data-m')==='sigla');});}
+  render();
+});
+render();
+</script>
+</body>
+</html>

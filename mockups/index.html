@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel Unificado · CAIXA — Comparar ideias de Esteira</title>
+<style>
+  :root{
+    --caixa-azul:#1c60ab; --caixa-azul-escuro:#003a70; --caixa-laranja:#ef9c00; --caixa-turquesa:#3fb6a8;
+    --simplifica-grad:linear-gradient(100deg,#003a70 0%,#1c60ab 45%,#3fb6a8 100%);
+    --bg:#f4f6fa; --surface:#fff; --ink:#1a2433; --ink-soft:#5a6b80; --ink-mute:#8c99ab; --line:#e4e9f0;
+    --shadow:0 1px 3px rgba(16,38,76,.08),0 8px 24px rgba(16,38,76,.06);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif}
+  .top{background:var(--simplifica-grad);color:#fff;padding:22px 28px}
+  .top h1{margin:0;font-size:19px;font-weight:600;display:flex;align-items:center;gap:10px}
+  .top .mk{width:32px;height:32px;border-radius:9px;background:rgba(255,255,255,.16);display:flex;align-items:center;justify-content:center;font-size:18px}
+  .top p{margin:8px 0 0;font-size:13px;opacity:.88;max-width:780px;line-height:1.5}
+  .wrap{max-width:1100px;margin:0 auto;padding:26px 24px 60px}
+  .note{font-size:13px;color:var(--ink-soft);background:#eef6f4;border:1px solid #d3e9e4;border-radius:12px;padding:12px 15px;line-height:1.55}
+  .note b{color:#155349}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px;margin-top:22px}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column}
+  .card .vis{height:128px;display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--line)}
+  .card .body{padding:18px;display:flex;flex-direction:column;gap:10px;flex:1}
+  .card .tag{font-size:11px;font-weight:700;letter-spacing:.04em;color:var(--caixa-azul);text-transform:uppercase}
+  .card h2{margin:0;font-size:16px;font-weight:600}
+  .card p{margin:0;font-size:13px;color:var(--ink-soft);line-height:1.5;flex:1}
+  .card .foco{font-size:12px;color:var(--ink-mute)}
+  .card a{margin-top:6px;display:inline-flex;align-items:center;justify-content:center;gap:7px;text-decoration:none;
+    background:var(--caixa-azul);color:#fff;font-size:13px;font-weight:600;padding:10px 14px;border-radius:10px;transition:.15s}
+  .card a:hover{background:var(--caixa-azul-escuro)}
+  .common{margin-top:30px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px 20px;box-shadow:var(--shadow)}
+  .common h3{margin:0 0 8px;font-size:14px}
+  .common ul{margin:0;padding-left:18px;font-size:13px;color:var(--ink-soft);line-height:1.7}
+  .mini{display:flex;gap:6px;align-items:center}
+  .mb{width:34px;height:46px;border-radius:6px;background:#fff;border:1px solid var(--line);border-left:3px solid var(--caixa-azul)}
+  .ar{color:var(--caixa-laranja);font-weight:700}
+  .vis.a{background:#eef6f4}.vis.b{background:#f3f1fb}.vis.c{background:#eef3f8}
+  .dot{width:13px;height:13px;border-radius:50%;display:inline-block}
+</style>
+</head>
+<body>
+<div class="top">
+  <h1><span class="mk">▱</span>Painel Unificado · CAIXA — 3 ideias para a aba <span style="color:#ffd98a">Esteira</span></h1>
+  <p>Mesmo shell do painel (seletor de Área/SIGLA · Minha Carteira · Por SIGLA · DomainCards dos módulos ServiceNow). O que muda entre os três é só como a <b>aba Esteira</b> mostra a rastreabilidade ponta a ponta entre os módulos. Abra, compare e escolha um — depois evoluímos o escolhido para o app real com dados da instância.</p>
+</div>
+<div class="wrap">
+  <div class="note">⚠️ <b>Protótipos com dados de exemplo.</b> 3 SIGLAs fictícias (SIAME_RJ, SIANA, SIAOC) e registros mock — só para decidir o desenho. A integração com dados reais (ITSM, Ágil, SPM, EA/APM) e a definição da fonte de SIGLA vêm na fase seguinte.</div>
+
+  <div class="cards">
+    <div class="card">
+      <div class="vis a"><div class="mini"><div class="mb" style="border-left-color:var(--caixa-turquesa)"></div><span class="ar">›</span><div class="mb" style="border-left-color:var(--caixa-laranja)"></div><span class="ar">›</span><div class="mb" style="border-left-color:#7b6fd6"></div><span class="ar">›</span><div class="mb" style="border-left-color:#4f9d3a"></div></div></div>
+      <div class="body">
+        <span class="tag">Ideia A</span>
+        <h2>Trilhos de cadeia</h2>
+        <p>Cada rastreabilidade vira um trilho horizontal Demanda → Requisito → Story → Teste → Operação. Lê-se como uma linha do tempo; ótimo para seguir um item ponta a ponta.</p>
+        <span class="foco">Foco: acompanhar uma cadeia do começo ao fim.</span>
+        <a href="esteira-a-trilhos.html">Abrir protótipo A →</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="vis b"><div class="mini" style="align-items:flex-start"><div style="display:flex;gap:5px"><div class="mb" style="height:54px"></div><div class="mb" style="height:38px;border-left-color:var(--caixa-laranja)"></div><div class="mb" style="height:46px;border-left-color:#7b6fd6"></div><div class="mb" style="height:30px;border-left-color:#4f9d3a"></div></div></div></div>
+      <div class="body">
+        <span class="tag">Ideia B</span>
+        <h2>Kanban de fases + faixa</h2>
+        <p>Cinco colunas por fase do ciclo, com <b>linhas conectando os cards</b> entre os módulos. Clicar num card acende toda a linhagem e monta a faixa de rastreabilidade embaixo.</p>
+        <span class="foco">Foco: visão de pipeline + drill numa cadeia sob demanda.</span>
+        <a href="esteira-b-kanban.html">Abrir protótipo B →</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="vis c"><div class="mini"><span class="dot" style="background:var(--caixa-turquesa)"></span><span class="ar">─</span><span class="dot" style="background:var(--caixa-laranja)"></span><span class="ar">─</span><span class="dot" style="background:#7b6fd6"></span><span class="ar">─</span><span class="dot" style="background:#4f9d3a"></span></div></div>
+      <div class="body">
+        <span class="tag">Ideia C</span>
+        <h2>Grafo de rastreabilidade</h2>
+        <p>Mapa node-link conectando registros entre os módulos. Evidencia a teia inteira e destaca lacunas — requisitos e itens <b>sem caso de teste</b> ficam marcados em vermelho.</p>
+        <span class="foco">Foco: rede de relações e cobertura (o que está “órfão”).</span>
+        <a href="esteira-c-grafo.html">Abrir protótipo C →</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="common">
+    <h3>O que é igual nos três (o shell do painel)</h3>
+    <ul>
+      <li>Abre em <b>Minha Carteira</b> — os itens atribuídos a você, de todos os módulos.</li>
+      <li>Trocar a <b>SIGLA</b> no topo leva automaticamente à visão <b>Por SIGLA</b> daquele sistema.</li>
+      <li>Os 6 módulos (ITSM · Ágil · SPM · Requisitos · Testes · EA/APM) saem do <b>mesmo DomainCard</b>.</li>
+      <li>A aba <b>Esteira</b> mostra a rastreabilidade ponta a ponta entre os módulos.</li>
+    </ul>
+  </div>
+</div>
+</body>
+</html>

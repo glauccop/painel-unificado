@@ -1,0 +1,6 @@
+{
+  "scope": "x_snc_painel_unif",
+  "scopeId": "58b0b7943d384a1ea67920e25b3fcaaf",
+  "name": "Simplifica.CAIXA",
+  "tsconfigPath": "./src/server/tsconfig.json"
+}

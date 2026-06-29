@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel Unificado · CAIXA — Console (dados reais)</title>
+<style>
+  :root{
+    --caixa-azul:#1c60ab; --caixa-azul-escuro:#003a70; --caixa-laranja:#ef9c00;
+    --caixa-turquesa:#3fb6a8; --vermelho:#d64545;
+    --simplifica-grad:linear-gradient(100deg,#003a70 0%,#1c60ab 45%,#3fb6a8 100%);
+    --bg:#f4f6fa; --surface:#ffffff; --surface-2:#fbfcfe; --ink:#1a2433; --ink-soft:#5a6b80;
+    --ink-mute:#8c99ab; --line:#e4e9f0; --radius:14px;
+    --shadow:0 1px 3px rgba(16,38,76,.08),0 8px 24px rgba(16,38,76,.06);
+    --d-spm:var(--caixa-turquesa); --d-req:var(--caixa-laranja); --d-agil:#7b6fd6;
+    --d-test:#4f9d3a; --d-itsm:var(--caixa-azul); --d-eap:#7a879b;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:14px}
+  .ic svg{width:1em;height:1em;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;display:block}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+
+  .top{display:flex;align-items:center;gap:16px;padding:14px 24px;background:var(--simplifica-grad);box-shadow:var(--shadow);color:#fff;flex-wrap:wrap}
+  .top .brand{display:flex;align-items:center;gap:10px;font-weight:600;font-size:15px;white-space:nowrap}
+  .top .brand .mk{width:30px;height:30px;border-radius:9px;background:rgba(255,255,255,.16);display:flex;align-items:center;justify-content:center;font-size:17px}
+  .top .brand small{display:block;font-weight:400;font-size:11px;opacity:.8;margin-top:1px}
+  .ctx{display:flex;align-items:center;gap:8px}
+  .ctx label{font-size:11px;opacity:.85;text-transform:uppercase;letter-spacing:.04em}
+  .ctx select{height:34px;border:none;border-radius:9px;padding:0 12px;font-size:13px;font-weight:600;background:rgba(255,255,255,.92);color:var(--caixa-azul-escuro);cursor:pointer;min-width:150px;max-width:280px}
+  .scope{display:flex;background:rgba(255,255,255,.16);border-radius:9px;padding:3px}
+  .scope button{border:none;background:transparent;color:#fff;font:inherit;font-size:12px;padding:6px 12px;border-radius:7px;cursor:pointer;opacity:.85}
+  .scope button.on{background:#fff;color:var(--caixa-azul-escuro);font-weight:700;opacity:1}
+  .sp{flex:1}
+  .srch{display:flex;align-items:center;gap:7px;font-size:13px;color:#fff;background:rgba(255,255,255,.16);border-radius:9px;padding:0 12px;height:34px}
+  .usr{display:flex;align-items:center;gap:8px;font-size:12px}
+  .usr .av{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.92);color:var(--caixa-azul-escuro);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700}
+
+  .wrap{max-width:1180px;margin:0 auto;padding:18px 24px 48px}
+  .tabs{display:flex;gap:4px;margin-top:4px;background:#e9eef5;padding:4px;border-radius:12px;width:fit-content}
+  .tabs button{border:none;background:transparent;font-size:13px;padding:8px 16px;border-radius:8px;color:var(--ink-soft);cursor:pointer;font-family:inherit}
+  .tabs button.on{background:#fff;color:var(--caixa-azul-escuro);font-weight:600;box-shadow:var(--shadow)}
+  .lead{font-size:13px;color:var(--ink-soft);margin:18px 2px 14px;line-height:1.5}.lead b{color:var(--ink)}
+  .real{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:#1f7a44;background:#e3f3ea;border:1px solid #bfe3cd;border-radius:20px;padding:3px 10px;margin-left:8px}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(248px,1fr));gap:14px}
+  .dc{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)}
+  .dc.muted{opacity:.6}
+  .dc .hd{display:flex;align-items:flex-start;gap:11px}
+  .dc .icb{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;color:#fff}
+  .dc .ttl{font-size:14px;font-weight:600;line-height:1.25;color:var(--ink)}
+  .dc .sub{font-size:11px;color:var(--ink-mute);line-height:1.35;margin-top:3px}
+  .dc .kpi{margin-left:auto;font-size:26px;font-weight:600;line-height:1;color:var(--ink)}
+  .dc ul{list-style:none;margin:13px 0 0;padding:11px 0 0;border-top:1px solid var(--line)}
+  .dc li{display:flex;align-items:center;gap:9px;padding:6px 0;font-size:12.5px}
+  .dc li .id{font-size:11px;color:var(--ink-soft);white-space:nowrap}
+  .dc li .ds{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink)}
+  .dc li .who{font-size:10px;color:var(--ink-mute);white-space:nowrap}
+  .dc li.empty{color:var(--ink-mute);justify-content:center;padding:10px 0;font-style:italic}
+  .pill{font-size:10px;padding:2px 8px;border-radius:10px;white-space:nowrap;font-weight:600}
+
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px}
+  .mc{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:13px 15px;box-shadow:var(--shadow)}
+  .mc .l{font-size:12px;color:var(--ink-soft)} .mc .v{font-size:24px;font-weight:600;margin-top:3px;color:var(--caixa-azul-escuro)}
+
+  /* Esteira */
+  .kanban{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+  .kbcol{background:#eef2f7;border-radius:12px;padding:9px;min-height:140px}
+  .kbcol .ch{font-size:11px;font-weight:700;color:var(--caixa-azul-escuro);text-transform:uppercase;letter-spacing:.03em;padding:2px 4px 10px;display:flex;justify-content:space-between;align-items:center}
+  .kbcol .ch .cnt{font-size:12px;font-weight:700;color:var(--ink-soft)}
+  .kcard{background:#fff;border:1px solid var(--line);border-left:3px solid var(--ink-mute);border-radius:9px;padding:8px 10px;margin-bottom:8px;position:relative}
+  .kcard .nid{font-size:10px;color:var(--ink-soft)}
+  .kcard .nds{font-size:11.5px;line-height:1.3;color:var(--ink);margin-top:2px}
+  .kcard .who{font-size:10px;color:var(--ink-mute);margin-top:3px}
+  .kbcol.soon{display:flex;flex-direction:column}
+  .kbcol .soonbox{flex:1;display:flex;align-items:center;justify-content:center;text-align:center;color:var(--ink-mute);font-size:11px;font-style:italic;border:1px dashed #cdd6e2;border-radius:9px;padding:12px;background:repeating-linear-gradient(45deg,#fafbfd,#fafbfd 6px,#f1f4f8 6px,#f1f4f8 12px)}
+  .tracenote{margin-top:14px;background:#fff8ec;border:1px solid #f3dca8;border-radius:12px;padding:12px 15px;font-size:12.5px;color:#8a5a00;line-height:1.5;display:flex;gap:10px}
+  .tracenote b{color:#6b4600}
+  .legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:16px;padding:12px 14px;background:#eef2f7;border-radius:12px;font-size:11px;color:var(--ink-soft)}
+  .legend .lg{display:flex;align-items:center;gap:6px}.legend .sw{width:10px;height:10px;border-radius:3px}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <symbol id="ic-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></symbol>
+  <symbol id="ic-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="12" y1="11" x2="12" y2="16"/><line x1="12" y1="8" x2="12.01" y2="8"/></symbol>
+  <symbol id="ic-spm" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></symbol>
+  <symbol id="ic-req" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><polyline points="14 3 14 8 19 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></symbol>
+  <symbol id="ic-agil" viewBox="0 0 24 24"><rect x="4" y="4" width="4" height="13"/><rect x="10" y="4" width="4" height="8"/><rect x="16" y="4" width="4" height="16"/></symbol>
+  <symbol id="ic-test" viewBox="0 0 24 24"><path d="M9 11l3 3 9-9"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></symbol>
+  <symbol id="ic-itsm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5"/><line x1="12" y1="3" x2="12" y2="8.5"/><line x1="12" y1="15.5" x2="12" y2="21"/><line x1="3" y1="12" x2="8.5" y2="12"/><line x1="15.5" y1="12" x2="21" y2="12"/></symbol>
+  <symbol id="ic-eap" viewBox="0 0 24 24"><line x1="3" y1="21" x2="21" y2="21"/><polyline points="3 10 12 4 21 10"/><line x1="5" y1="10" x2="5" y2="21"/><line x1="10" y1="10" x2="10" y2="21"/><line x1="14" y1="10" x2="14" y2="21"/><line x1="19" y1="10" x2="19" y2="21"/></symbol>
+</defs></svg>
+
+<div class="top">
+  <div class="brand"><span class="mk">▱</span><span>Simplifica.CAIXA<small>Painel Unificado</small></span></div>
+  <div class="ctx">
+    <label>Área (SIGLA)</label>
+    <select id="sigla">
+      <option value="">Todas as áreas</option>
+      <option value="PowerKart">PowerKart</option>
+      <option value="Payment App">Payment App</option>
+      <option value="Attendance and Payroll Management System">Attendance &amp; Payroll</option>
+    </select>
+  </div>
+  <div class="scope" id="scope" role="tablist" aria-label="Escopo">
+    <button data-s="mine">Meus</button>
+    <button data-s="team">Meu time</button>
+    <button data-s="both" class="on">Meus + time</button>
+  </div>
+  <span class="sp"></span>
+  <span class="srch"><span class="ic"><svg><use href="#ic-search"/></svg></span>Buscar…</span>
+  <span class="usr"><span class="av">DL</span>David Loo</span>
+</div>
+
+<div class="wrap">
+  <div class="tabs" id="tabs">
+    <button data-m="carteira" class="on">Visão geral</button>
+    <button data-m="esteira">Esteira</button>
+  </div>
+  <div id="lead" class="lead"></div>
+  <div id="stage"></div>
+</div>
+
+<script>
+/* ===== Persona real (David Loo) e seus grupos ===== */
+var DAVID='5137153cc611227c000bbd1bd8cd2007';
+var MY_GROUPS=['b6d2d024db76fb008606f2131f9619d8','ddf44252d7133100816403548e61035e','3708bf261b2b6450fa5f63142a4bcb10','54cf4300533110102c69ddeeff7b1215'];
+
+var DOMAINS=[
+  {k:'spm', icon:'ic-spm', col:'var(--d-spm)', title:'Demandas e Projetos',          sub:'SPM',                  phase:'portfolio'},
+  {k:'req', icon:'ic-req', col:'var(--d-req)', title:'Requisitos',                   sub:'Requisição de Negócio',phase:'requisitos'},
+  {k:'agil',icon:'ic-agil',col:'var(--d-agil)',title:'Stories e Epics',              sub:'Ágil / SAFe',          phase:'dev'},
+  {k:'test',icon:'ic-test',col:'var(--d-test)',title:'Casos de Teste',               sub:'Test Management',      phase:'testes'},
+  {k:'itsm',icon:'ic-itsm',col:'var(--d-itsm)',title:'Incidentes, Problemas e Mudanças', sub:'ITSM',             phase:'operacao'},
+  {k:'eap', icon:'ic-eap', col:'var(--d-eap)', title:'Aplicações',                   sub:'EA / APM',             phase:'portfolio'}
+];
+var DMAP={}; DOMAINS.forEach(function(d){DMAP[d.k]=d;});
+var PHASES=[
+  {k:'portfolio', label:'Portfólio'},
+  {k:'requisitos',label:'Requisitos'},
+  {k:'dev',       label:'Desenvolvimento'},
+  {k:'testes',    label:'Testes'},
+  {k:'operacao',  label:'Operação'}
+];
+// sys_class_name -> domínio
+function clsDomain(cls){
+  if(['incident','problem','change_request','sc_task','sc_req_item'].indexOf(cls)>=0) return 'itsm';
+  if(['pm_project','dmn_demand','idea','business_app_request'].indexOf(cls)>=0) return 'spm';
+  if(['rm_epic','sn_safe_epic','rm_story','rm_feature'].indexOf(cls)>=0) return 'agil';
+  if(cls==='cmdb_ci_business_app') return 'eap';
+  return 'itsm';
+}
+var PRI={1:['Crítica','#fbe6e6','#c0392b'],2:['Alta','#fff0e0','#b3600a'],3:['Moderada','#fff3da','#a36a00'],4:['Baixa','#eef2f7','#5a6b80'],5:['Planejada','#eef2f7','#8c99ab']};
+
+/* ===== Dados REAIS (snapshot read-only de demoalectriallwfab151756) ===== */
+var R=[
+  // PowerKart — ITSM (grupo Powerkart Support)
+  {cls:'incident',id:'INC0025882',ds:'Product Search is Extremely Slow',pr:1,sig:'PowerKart',aid:DAVID,an:'David Loo',gid:'b6d2d024db76fb008606f2131f9619d8',gn:'Powerkart Support'},
+  {cls:'incident',id:'INC0025847',ds:'Wish list items vanish unexpectedly',pr:1,sig:'PowerKart',aid:DAVID,an:'David Loo',gid:'b6d2d024db76fb008606f2131f9619d8',gn:'Powerkart Support'},
+  {cls:'incident',id:'INC0025890',ds:'Issues logging into account',pr:3,sig:'PowerKart',aid:DAVID,an:'David Loo',gid:'b6d2d024db76fb008606f2131f9619d8',gn:'Powerkart Support'},
+  {cls:'incident',id:'INC0025906',ds:'Recommendations Not Loading',pr:1,sig:'PowerKart',aid:'46d44a23a9fe19810012d100cca80666',an:'Beth Anglin',gid:'b6d2d024db76fb008606f2131f9619d8',gn:'Powerkart Support'},
+  {cls:'incident',id:'INC0025892',ds:'Session times out too fast',pr:2,sig:'PowerKart',aid:'9ee1b13dc6112271007f9d0efdb69cd0',an:'Don Goodliffe',gid:'b6d2d024db76fb008606f2131f9619d8',gn:'Powerkart Support'},
+  {cls:'incident',id:'INC0025473',ds:'Payment page fails to load during checkout',pr:3,sig:'PowerKart',aid:'9ee1b13dc6112271007f9d0efdb69cd0',an:'Don Goodliffe',gid:'b6d2d024db76fb008606f2131f9619d8',gn:'Powerkart Support'},
+  {cls:'incident',id:'INC0025828',ds:'Search results are irrelevant or inaccurate',pr:2,sig:'PowerKart',aid:'9ee1b13dc6112271007f9d0efdb69cd0',an:'Don Goodliffe',gid:'b6d2d024db76fb008606f2131f9619d8',gn:'Powerkart Support'},
+  // PowerKart — SPM
+  {cls:'pm_project',id:'PRJ0010036',ds:'Cloud-Native Scalability Framework for B2B ECommerce',pr:4,sig:'PowerKart'},
+  {cls:'pm_project',id:'PRJ0010035',ds:'Adaptive Dynamic Pricing Engine',pr:4,sig:'PowerKart'},
+  {cls:'pm_project',id:'PRJ0010046',ds:'Develop B2B Analytics Dashboard',pr:4,sig:'PowerKart'},
+  {cls:'dmn_demand',id:'DMND0001123',ds:'Add Seamless Checkout Process',pr:4,sig:'PowerKart'},
+  {cls:'dmn_demand',id:'DMND0001117',ds:'Streamline Bulk Order Workflow',pr:4,sig:'PowerKart'},
+  {cls:'dmn_demand',id:'DMND0001119',ds:'Integrate B2B Payment Options',pr:4,sig:'PowerKart'},
+  // PowerKart — Ágil
+  {cls:'rm_epic',id:'EPIC0010001',ds:'AI-Enhanced Customer Loyalty Program',pr:3,sig:'PowerKart',aid:'71826bf03710200044e0bfc8bcbe5d3b',an:'Aileen Mottern'},
+  {cls:'sn_safe_epic',id:'SFEPIC0001078',ds:'AI-Driven Personalization for Retail Customers',pr:4,sig:'PowerKart',aid:'71826bf03710200044e0bfc8bcbe5d3b',an:'Aileen Mottern'},
+  {cls:'sn_safe_epic',id:'SFEPIC0001001',ds:'Intelligent Collaboration Framework',pr:4,sig:'PowerKart',aid:'46cd276ba9fe19810024aa59b51d6ef7',an:'Megan Burke'},
+  // PowerKart — EA/APM
+  {cls:'cmdb_ci_business_app',id:'APM0001002',ds:'PowerKart',pr:5,sig:'PowerKart'},
+
+  // Payment App
+  {cls:'pm_project',id:'PRJ0010005',ds:'Transforming Payment Solutions R&D with GenAI',pr:1,sig:'Payment App',aid:'04226a29db66ae00580ed211ce961908',an:'Paul Martin',gid:'55245b4e2b48ee10b602f23bc891bf18',gn:'Alectri - Payment App Project Group'},
+  {cls:'pm_project',id:'PRJ0010090',ds:'Implement Secure Payment Protocols',pr:2,sig:'Payment App'},
+  {cls:'sn_safe_epic',id:'SFEPIC0001017',ds:'Develop a payment gateway that supports multiple payment methods.',pr:4,sig:'Payment App',aid:'04226a29db66ae00580ed211ce961908',an:'Paul Martin'},
+  {cls:'sn_safe_epic',id:'SFEPIC0001068',ds:'Digital Payments',pr:4,sig:'Payment App',aid:'9a3f5625db66ae00580ed211ce9619b9',an:'Claire Ingress'},
+  {cls:'cmdb_ci_business_app',id:'APM0001014',ds:'Payment App',pr:5,sig:'Payment App'},
+
+  // Attendance & Payroll
+  {cls:'business_app_request',id:'TASK0020032',ds:'Modernize Monthly Payroll Process',pr:1,sig:'Attendance and Payroll Management System',aid:'5664faa387a89610990263960cbb3590',an:'Kevin Bill'},
+  {cls:'idea',id:'IDEA0001025',ds:'Artificial Intelligence in Operations',pr:4,sig:'Attendance and Payroll Management System'},
+  {cls:'cmdb_ci_business_app',id:'APM0000411',ds:'Attendance and Payroll Management System',pr:5,sig:'Attendance and Payroll Management System'}
+];
+
+/* ===== Filtros ===== */
+function curSig(){return document.getElementById('sigla').value;}
+var scope='both', mode='carteira';
+
+function scopeMatch(r){
+  var mine = r.aid===DAVID;
+  var team = r.gid && MY_GROUPS.indexOf(r.gid)>=0;
+  if(scope==='mine') return mine;
+  if(scope==='team') return team;
+  return mine || team; // both
+}
+// "Tudo" geral: quando o usuário não quer recortar por propriedade.
+// Aqui o escopo SEMPRE recorta (Meus / Meu time / Meus+time) — é o pedido do filtro.
+
+function pill(pr){var c=PRI[pr]||PRI[4];return '<span class="pill" style="background:'+c[1]+';color:'+c[2]+'">'+c[0]+'</span>';}
+function ic(id){return '<span class="ic"><svg><use href="#'+id+'"/></svg></span>';}
+function who(r){return r.an?('<span class="who">'+r.an+'</span>'):(r.gn?'<span class="who">'+r.gn+'</span>':'');}
+
+function card(dom,recs){
+  var li = recs.length ? recs.slice(0,4).map(function(r){
+    return '<li><span class="id mono">'+r.id+'</span><span class="ds">'+r.ds+'</span>'+who(r)+pill(r.pr)+'</li>';
+  }).join('') : '<li class="empty">Nenhum item no filtro atual</li>';
+  var more = recs.length>4 ? '<li class="empty">+ '+(recs.length-4)+' itens</li>' : '';
+  var muted = (dom.k==='req'||dom.k==='test') ? ' muted' : '';
+  var subextra = (dom.k==='req'||dom.k==='test') ? ' · sem dados na instância' : '';
+  return '<div class="dc'+muted+'"><div class="hd">'
+    +'<div class="icb" style="background:'+dom.col+'">'+ic(dom.icon)+'</div>'
+    +'<div><div class="ttl">'+dom.title+'</div><div class="sub">'+dom.sub+subextra+'</div></div>'
+    +'<div class="kpi">'+recs.length+'</div></div><ul>'+li+more+'</ul></div>';
+}
+
+function visible(){
+  var sig=curSig();
+  return R.filter(function(r){
+    if(sig && r.sig!==sig) return false;
+    return scopeMatch(r);
+  });
+}
+
+var scopeNames={mine:'atribuídos a você',team:'dos seus grupos',both:'seus e dos seus grupos'};
+
+function render(){
+  var stage=document.getElementById('stage'), lead=document.getElementById('lead');
+  var sig=curSig();
+  var rows=visible();
+  var ctxTxt=(sig?('da área <b>'+sig+'</b>'):'de <b>todas as áreas</b>')+' · itens <b>'+scopeNames[scope]+'</b>';
+
+  if(mode==='carteira'){
+    lead.innerHTML='Registros '+ctxTxt+', reunidos de todos os módulos. <span class="real">'+ic('ic-info')+'dados reais da instância</span>';
+    var kpiAll=rows.length, kpiMine=rows.filter(function(r){return r.aid===DAVID;}).length, kpiApps=[].concat.apply([],[]) ;
+    var apps={}; rows.forEach(function(r){apps[r.sig]=1;});
+    var k='<div class="kpis">'
+      +'<div class="mc"><div class="l">Itens no filtro</div><div class="v">'+kpiAll+'</div></div>'
+      +'<div class="mc"><div class="l">Atribuídos a você</div><div class="v">'+kpiMine+'</div></div>'
+      +'<div class="mc"><div class="l">Áreas (SIGLAs)</div><div class="v">'+Object.keys(apps).length+'</div></div></div>';
+    var g=DOMAINS.map(function(d){return card(d,rows.filter(function(r){return clsDomain(r.cls)===d.k;}));}).join('');
+    stage.innerHTML=k+'<div class="grid">'+g+'</div>';
+  }else{
+    lead.innerHTML='Ciclo de vida '+ctxTxt+', por fase. <span class="real">'+ic('ic-info')+'dados reais da instância</span>';
+    var cols=PHASES.map(function(p){
+      if(p.k==='requisitos'||p.k==='testes'){
+        return '<div class="kbcol soon"><div class="ch"><span>'+p.label+'</span><span class="cnt">0</span></div>'
+          +'<div class="soonbox">Sem dados na instância<br>(módulo a habilitar)</div></div>';
+      }
+      var items=rows.filter(function(r){return DMAP[clsDomain(r.cls)].phase===p.k;});
+      var body=items.length?items.map(function(r){
+        return '<div class="kcard" style="border-left-color:'+DMAP[clsDomain(r.cls)].col+'">'
+          +'<div class="nid mono">'+r.id+'</div><div class="nds">'+r.ds+'</div>'+(r.an?'<div class="who">'+r.an+'</div>':'')+'</div>';
+      }).join(''):'<div class="soonbox" style="border:none;background:none">—</div>';
+      return '<div class="kbcol"><div class="ch"><span>'+p.label+'</span><span class="cnt">'+items.length+'</span></div>'+body+'</div>';
+    }).join('');
+    var note='<div class="tracenote">'+ic('ic-info')+'<div><b>Rastreabilidade entre registros é esparsa nesta instância.</b> Hoje o elo real que une os domínios é a própria <b>Área (Business Application)</b> — não há links registro-a-registro consistentes (ex.: epic→story, demanda→projeto) para desenhar cadeias automáticas. Decisão para o objeto final: (a) usar a SIGLA como espinha, (b) semear/relacionar registros, ou (c) usar relações do CMDB.</div></div>';
+    var legend='<div class="legend">'+DOMAINS.filter(function(d){return d.k!=='req'&&d.k!=='test';}).map(function(d){
+      return '<span class="lg"><span class="sw" style="background:'+d.col+'"></span>'+d.title+'</span>';
+    }).join('')+'</div>';
+    stage.innerHTML='<div class="kanban">'+cols+'</div>'+note+legend;
+  }
+}
+
+document.querySelectorAll('#tabs button').forEach(function(b){b.addEventListener('click',function(){
+  mode=b.getAttribute('data-m');
+  document.querySelectorAll('#tabs button').forEach(function(x){x.classList.toggle('on',x===b);});
+  render();
+});});
+document.querySelectorAll('#scope button').forEach(function(b){b.addEventListener('click',function(){
+  scope=b.getAttribute('data-s');
+  document.querySelectorAll('#scope button').forEach(function(x){x.classList.toggle('on',x===b);});
+  render();
+});});
+document.getElementById('sigla').addEventListener('change',render);
+render();
+</script>
+</body>
+</html>
