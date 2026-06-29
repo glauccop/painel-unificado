@@ -3,7 +3,7 @@ import { Bars } from './Bars'
 import type { Summary, LabeledCount } from '../shared/api'
 import type { InsightKey, PersonaTemplate } from '../shared/templates'
 import type { Visibility } from '../shared/visibility'
-import { VULN_ID, visibleByType } from '../shared/derive'
+import { VULN_ID, visibleByType, visiblePriority, visibleAging, visibleByAssignee, visibleThroughput } from '../shared/derive'
 
 interface Props {
     template: PersonaTemplate
@@ -39,35 +39,36 @@ export function Insights({ template, summary, onLens, vis }: Props) {
         } else if (key === 'byPriority') {
             blocks.push(
                 <Panel key="byPriority" title="Por prioridade">
-                    <Bars data={summary.byPriority} accent="laranja" emptyText="Sem dados" />
+                    <Bars data={visiblePriority(summary, vis)} accent="laranja" emptyText="Sem dados" />
                 </Panel>,
             )
         } else if (key === 'aging') {
             blocks.push(
                 <Panel key="aging" title="Idade das pendências">
-                    <Bars data={summary.aging} accent="turquesa" emptyText="Sem pendências" />
+                    <Bars data={visibleAging(summary, vis)} accent="turquesa" emptyText="Sem pendências" />
                 </Panel>,
             )
         } else if (key === 'team_load' && summary.team) {
             blocks.push(
                 <Panel key="team_load" title="Carga por responsável (time)">
-                    <Bars data={summary.team.by_assignee} accent="azul" emptyText="Sem dados do time" />
+                    <Bars data={visibleByAssignee(summary, vis)} accent="azul" emptyText="Sem dados do time" />
                 </Panel>,
             )
         } else if (key === 'throughput' && summary.team) {
+            const thr = visibleThroughput(summary, vis)
             blocks.push(
                 <Panel key="throughput" title="Throughput (7 dias)">
                     <div className="throughput">
                         <div className="thr-stat">
-                            <span className="thr-num thr-in">{summary.team.opened_7d}</span>
+                            <span className="thr-num thr-in">{thr.opened}</span>
                             <span className="thr-cap">Abertos</span>
                         </div>
                         <div className="thr-stat">
-                            <span className="thr-num thr-out">{summary.team.closed_7d}</span>
+                            <span className="thr-num thr-out">{thr.closed}</span>
                             <span className="thr-cap">Fechados</span>
                         </div>
                         <div className="thr-stat">
-                            <span className="thr-num">{summary.team.closed_7d - summary.team.opened_7d}</span>
+                            <span className="thr-num">{thr.saldo}</span>
                             <span className="thr-cap">Saldo</span>
                         </div>
                     </div>

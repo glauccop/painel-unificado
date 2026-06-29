@@ -16,6 +16,9 @@ export interface LabeledCount {
     key?: string
     label: string
     count: number
+    // Quebra por sys_class_name — usada na aba Foco para colapsar pelos tipos visíveis
+    // na engrenagem. Opcional: outras visões usam só `count`.
+    byClass?: Record<string, number>
 }
 export interface Summary {
     user: { id: string; name: string }
@@ -27,12 +30,15 @@ export interface Summary {
     byPriority: LabeledCount[]
     aging: LabeledCount[]
     aging_total: number
+    overdue_sla_by_class: Record<string, number>
     vuln: { open: number; by_severity: LabeledCount[] }
     approvals_pending: number
     team: null | {
         by_assignee: LabeledCount[]
         opened_7d: number
         closed_7d: number
+        opened_7d_by_class: Record<string, number>
+        closed_7d_by_class: Record<string, number>
     }
 }
 export interface InboxItem {

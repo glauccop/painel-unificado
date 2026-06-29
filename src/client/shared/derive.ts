@@ -1,5 +1,5 @@
 import type { Accent } from '../components/KpiCard'
-import type { InboxItem, Summary, TypeCount } from './api'
+import type { InboxItem, Summary, TypeCount, LabeledCount } from './api'
 import type { Lens } from '../components/Inbox'
 import type { Visibility } from './visibility'
 
@@ -42,11 +42,54 @@ export function visibleOpenTotal(summary: Summary, vis: Visibility): number {
     return visibleByType(summary, vis).reduce((a, t) => a + t.count, 0)
 }
 
+// Colapsa um mapa { sys_class_name: count } somando só as classes visíveis na engrenagem.
+export function collapseByClass(byClass: Record<string, number> | undefined, vis: Visibility): number {
+    if (!byClass) return 0
+    let sum = 0
+    for (const cls of Object.keys(byClass)) if (vis.isVisible(cls)) sum += byClass[cls]
+    return sum
+}
+
 export function kpiValue(key: string, summary: Summary, vis: Visibility): number {
     if (key === 'open_total') return visibleOpenTotal(summary, vis)
     if (key === 'vuln_open') return vis.isVisible(VULN_VIS) ? summary.kpis.vuln_open : 0
     if (key === 'awaiting_you') return vis.isVisible(APPROVALS_ID) ? summary.kpis.awaiting_you : 0
+    if (key === 'overdue_sla') return collapseByClass(summary.overdue_sla_by_class, vis)
     return (summary.kpis as any)[key] ?? 0
+}
+
+// Insights da aba Foco recalculados pelas classes visíveis (byClass colapsado).
+// Cada entrada mantém label/key; o count passa a contar só os tipos ligados.
+function withVisibleCount(rows: LabeledCount[], vis: Visibility): LabeledCount[] {
+    return rows
+        .map((r) => ({ ...r, count: collapseByClass(r.byClass, vis) }))
+        .filter((r) => r.count > 0)
+}
+
+export function visiblePriority(summary: Summary, vis: Visibility): LabeledCount[] {
+    return withVisibleCount(summary.byPriority, vis)
+}
+
+export function visibleAging(summary: Summary, vis: Visibility): LabeledCount[] {
+    // Mantém os 3 baldes (mesmo zerados) para preservar a ordem/escala do gráfico.
+    return summary.aging.map((r) => ({ ...r, count: collapseByClass(r.byClass, vis) }))
+}
+
+export function visibleByAssignee(summary: Summary, vis: Visibility): LabeledCount[] {
+    if (!summary.team) return []
+    return withVisibleCount(summary.team.by_assignee, vis).sort((a, b) => b.count - a.count)
+}
+
+export interface Throughput {
+    opened: number
+    closed: number
+    saldo: number
+}
+export function visibleThroughput(summary: Summary, vis: Visibility): Throughput {
+    if (!summary.team) return { opened: 0, closed: 0, saldo: 0 }
+    const opened = collapseByClass(summary.team.opened_7d_by_class, vis)
+    const closed = collapseByClass(summary.team.closed_7d_by_class, vis)
+    return { opened, closed, saldo: closed - opened }
 }
 
 // Lista de KPIs de um template, já filtrada pela visibilidade

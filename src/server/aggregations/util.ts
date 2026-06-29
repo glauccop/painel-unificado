@@ -46,6 +46,33 @@ export function groupBy(table: string, field: string, where?: string): GroupRow[
     return out
 }
 
+// Agrupa por DOIS campos (ex.: priority x sys_class_name). Retorna valor+display do
+// campo A e valor do campo B, para o cliente colapsar por visibilidade de classe.
+export interface Group2Row {
+    a: string
+    aLabel: string
+    b: string
+    count: number
+}
+export function groupBy2(table: string, fieldA: string, fieldB: string, where?: string): Group2Row[] {
+    const ga = new GlideAggregate(table) as any
+    ga.addAggregate('COUNT')
+    ga.groupBy(fieldA)
+    ga.groupBy(fieldB)
+    if (where) ga.addEncodedQuery(where)
+    ga.query()
+    const out: Group2Row[] = []
+    while (ga.next()) {
+        out.push({
+            a: ga.getValue(fieldA) || '',
+            aLabel: ga.getDisplayValue(fieldA) || ga.getValue(fieldA) || '',
+            b: ga.getValue(fieldB) || '',
+            count: n(ga.getAggregate('COUNT')),
+        })
+    }
+    return out
+}
+
 // Mapa key -> count
 export function countMap(table: string, field: string, where?: string): Record<string, number> {
     const m: Record<string, number> = {}
