@@ -127,6 +127,7 @@ export interface ConsoleVrItem {
 export interface ConsoleVr {
     total: number
     bySeverity: Array<{ label: string; count: number }>
+    unassignedBySeverity: Array<{ label: string; count: number }>
     items: ConsoleVrItem[]
     consoleUrl: string
     consoleLabel: string
@@ -140,6 +141,7 @@ export interface ConsoleData {
     byPriority: Array<{ key: string; count: number }>
     storyStatus: Array<{ label: string; count: number }>
     vr: ConsoleVr
+    approvals: { total: number; byType: Array<{ label: string; count: number }> }
     solutions: ConsoleSolution[]
 }
 export const fetchConsole = (scope: ScopeMode, ba = '') => getJson<ConsoleData>('/console', { scope, ba })

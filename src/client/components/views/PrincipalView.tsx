@@ -29,6 +29,16 @@ const PALETTE = [C.azul, C.turquesa, C.laranja, C.roxo, C.verde, C.vermelho, C.a
 const PRI_LABEL: Record<string, string> = { '1': 'Crítica', '2': 'Alta', '3': 'Moderada', '4': 'Baixa', '5': 'Planejada' }
 const PRI_COLOR: Record<string, string> = { '1': C.vermelho, '2': C.laranja, '3': C.amarelo, '4': C.cinza, '5': C.azul }
 
+// Escala de criticidade UNIFICADA: tarefas (priority) e vulnerabilidades (risk_rating)
+// mapeadas para os mesmos 5 níveis — usada no card "Registros não atribuídos".
+const CRIT_LABEL: Record<string, string> = { '1': 'Crítica', '2': 'Alta', '3': 'Moderada', '4': 'Baixa', '5': 'Nenhuma' }
+const CRIT_COLOR: Record<string, string> = { '1': C.vermelho, '2': C.laranja, '3': C.amarelo, '4': C.verde, '5': C.cinza }
+// priority de task (1..5 / vazio) -> bucket unificado
+function priBucket(priority: string): string {
+    const n = parseInt(priority, 10)
+    return n >= 1 && n <= 4 ? String(n) : '5'
+}
+
 // Cor por severidade (risk_rating) das vulnerabilidades — casa por substring do rótulo.
 function sevColor(label: string): string {
     const l = (label || '').toLowerCase()
@@ -62,6 +72,11 @@ function sevRank(label: string): number {
     return 5
 }
 
+// risk_rating de VR -> bucket de criticidade unificada (1..5), alinhado a CRIT_LABEL.
+function sevBucket(label: string): string {
+    return String(Math.min(sevRank(label) + 1, 5))
+}
+
 // Chave de visibilidade que controla o card VR (mesma da engrenagem).
 const VR_VIS = 'sn_vul_vulnerable_item'
 
@@ -85,7 +100,7 @@ function openRecord(it: ConsoleSolItem) {
     if (it.deeplink && it.deeplink !== '#') window.open(it.deeplink, '_blank')
 }
 
-function Donut({ title, data }: { title: string; data: Datum[] }) {
+function Donut({ title, data, unit = 'REGISTROS' }: { title: string; data: Datum[]; unit?: string }) {
     const total = data.reduce((a, d) => a + d.value, 0)
     const R = 52
     const CIRC = 2 * Math.PI * R
@@ -127,7 +142,7 @@ function Donut({ title, data }: { title: string; data: Datum[] }) {
                             {total}
                         </text>
                         <text x="70" y="84" textAnchor="middle" fontSize="9" fill="#8c99ab">
-                            REGISTROS
+                            {unit}
                         </text>
                     </svg>
                     <div className="donut-leg" style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 12 }}>
@@ -143,7 +158,22 @@ function Donut({ title, data }: { title: string; data: Datum[] }) {
                     </div>
                 </div>
             ) : (
-                <div className="chart-empty">Sem dados no filtro</div>
+                <div className="donut-wrap" style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
+                    <svg
+                        viewBox="0 0 140 140"
+                        className="donut"
+                        style={{ width: 'clamp(96px, 26%, 132px)', height: 'auto', flexShrink: 0 }}
+                    >
+                        <circle cx="70" cy="70" r={R} className="donut-bg" fill="none" stroke="#eef2f7" strokeWidth={16} />
+                        <text x="70" y="66" textAnchor="middle" fontSize="26" fontWeight="700" fill="#003a70">
+                            0
+                        </text>
+                        <text x="70" y="84" textAnchor="middle" fontSize="9" fill="#8c99ab">
+                            {unit}
+                        </text>
+                    </svg>
+                    <div className="donut-leg" style={{ fontSize: 12, color: '#8c99ab' }}>Sem registros</div>
+                </div>
             )}
         </div>
     )
@@ -175,7 +205,7 @@ function DistBars({ data }: { data: Datum[] }) {
     )
 }
 
-function VBarChart({ title, data }: { title: string; data: Datum[] }) {
+function HBarChart({ title, data }: { title: string; data: Datum[] }) {
     const max = Math.max(1, ...data.map((d) => d.value))
     return (
         <div
@@ -184,33 +214,31 @@ function VBarChart({ title, data }: { title: string; data: Datum[] }) {
         >
             <div className="chart-ttl">{title}</div>
             {data.length ? (
-                <div
-                    className="vbars"
-                    style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-around', gap: 10, minHeight: 150, paddingTop: 6 }}
-                >
+                <div className="hbars" style={{ display: 'flex', flexDirection: 'column', gap: 10, paddingTop: 6 }}>
                     {data.map((d) => (
-                        <div
-                            className="vbar"
-                            key={d.label}
-                            style={{ flex: 1, maxWidth: 64, display: 'flex', flexDirection: 'column', alignItems: 'center' }}
-                        >
-                            <span className="vbar-val" style={{ fontSize: 12, fontWeight: 700, marginBottom: 4 }}>
-                                {d.value}
-                            </span>
+                        <div key={d.label} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 12 }}>
                             <span
-                                className="vbar-col"
-                                style={{
-                                    height: `${(d.value / max) * 120}px`,
-                                    background: d.color,
-                                    width: '100%',
-                                    maxWidth: 46,
-                                    minHeight: 3,
-                                    borderRadius: '6px 6px 0 0',
-                                }}
-                            />
-                            <span className="vbar-lbl" title={d.label} style={{ fontSize: 10, marginTop: 6, textAlign: 'center', maxWidth: 70 }}>
+                                className="hbar-lbl"
+                                title={d.label}
+                                style={{ width: 120, flexShrink: 0, color: '#5a6678', textAlign: 'right', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+                            >
                                 {d.label}
                             </span>
+                            <div style={{ flex: 1, background: '#eef2f7', borderRadius: 5, height: 14 }}>
+                                <span
+                                    className="hbar-col"
+                                    style={{
+                                        display: 'block',
+                                        height: '100%',
+                                        width: `${(d.value / max) * 100}%`,
+                                        minWidth: 4,
+                                        background: d.color,
+                                        borderRadius: 5,
+                                        transition: 'width .2s',
+                                    }}
+                                />
+                            </div>
+                            <b style={{ width: 28, textAlign: 'right' }}>{d.value}</b>
                         </div>
                     ))}
                 </div>
@@ -386,46 +414,58 @@ export function PrincipalView({ scope, vis }: { scope: ScopeMode; vis: Visibilit
     }, [data, vis])
 
     const total = solutions.reduce((a, s) => a + s.total, 0)
+    const vrVisible = vis.isVisible(VR_VIS)
 
-    // 1) Tipos de registros (incidentes, problemas, changes e outros) — donut.
-    //    Vem do byType já filtrado pela visibilidade.
+    // 1) Tipos de registros — donut com TODOS os tipos apresentados ao usuário,
+    //    incluindo Vulnerabilidades (que não são task) quando o card VR está visível.
     const typeData: Datum[] = useMemo(() => {
-        return solutions
-            .flatMap((s) => s.byType)
-            .sort((a, b) => b.count - a.count)
-            .map((t, i) => ({ label: t.label, value: t.count, color: PALETTE[i % PALETTE.length] }))
-    }, [solutions])
+        const items = solutions.flatMap((s) => s.byType).map((t) => ({ label: t.label, value: t.count }))
+        if (data && data.vr && vrVisible && data.vr.total) {
+            items.push({ label: 'Vulnerabilidades', value: data.vr.total })
+        }
+        return items
+            .sort((a, b) => b.value - a.value)
+            .map((t, i) => ({ ...t, color: PALETTE[i % PALETTE.length] }))
+    }, [solutions, data, vrVisible])
 
-    // 2) Criticidade dos registros — donut por prioridade, recomputado a partir
-    //    dos itens visíveis (cada item tem priority), respeitando a engrenagem.
-    const critData: Datum[] = useMemo(() => {
-        const byPri: Record<string, number> = {}
+    // 2) Registros não atribuídos — donut por criticidade UNIFICADA dos registros
+    //    sem assigned_to. Tarefas (priority, respeitando a engrenagem) + Vulnerabilidades
+    //    (risk_rating, agregadas no servidor), mapeadas para a mesma escala.
+    const unassignedData: Datum[] = useMemo(() => {
+        const byBucket: Record<string, number> = {}
         solutions.forEach((s) => s.items.forEach((it) => {
-            const k = String(parseInt(it.priority, 10) || 5)
-            byPri[k] = (byPri[k] || 0) + 1
+            if (!it.assigned_to) {
+                const k = priBucket(it.priority)
+                byBucket[k] = (byBucket[k] || 0) + 1
+            }
         }))
+        if (data && data.vr && vrVisible && data.vr.unassignedBySeverity) {
+            data.vr.unassignedBySeverity.forEach((s) => {
+                const k = sevBucket(s.label)
+                byBucket[k] = (byBucket[k] || 0) + s.count
+            })
+        }
         return ['1', '2', '3', '4', '5']
-            .map((k) => ({ label: PRI_LABEL[k], value: byPri[k] || 0, color: PRI_COLOR[k] }))
+            .map((k) => ({ label: CRIT_LABEL[k], value: byBucket[k] || 0, color: CRIT_COLOR[k] }))
             .filter((d) => d.value > 0)
-    }, [solutions])
+    }, [solutions, data, vrVisible])
 
-    // 3) Status das histórias — barras verticais; vazio se "Stories" estiver desligado.
+    // 3) Status das histórias — barras horizontais; vazio se "Stories" estiver desligado.
     const storyVisible = vis.isVisible('rm_story')
     const storyData: Datum[] = useMemo(() => {
         if (!data || !storyVisible) return []
         return data.storyStatus.map((s, i) => ({ label: s.label, value: s.count, color: PALETTE[i % PALETTE.length] }))
     }, [data, storyVisible])
 
-    const vrVisible = vis.isVisible(VR_VIS)
-
-    // 4) Vulnerabilidades por severidade — donut; vazio se VR estiver desligado.
-    const vulnData: Datum[] = useMemo(() => {
-        if (!data || !data.vr || !vrVisible) return []
-        return data.vr.bySeverity
-            .slice()
-            .sort((a, b) => sevRank(a.label) - sevRank(b.label))
-            .map((s) => ({ label: sevLabel(s.label), value: s.count, color: sevColor(s.label) }))
-    }, [data, vrVisible])
+    // 4) Aprovações pendentes do usuário — donut por tipo do registro aprovado.
+    //    É pessoal (não depende da engrenagem nem do escopo).
+    const approvalsData: Datum[] = useMemo(() => {
+        if (!data || !data.approvals) return []
+        const bt = data.approvals.byType
+        if (bt.length) return bt.map((t, i) => ({ label: t.label, value: t.count, color: PALETTE[i % PALETTE.length] }))
+        if (data.approvals.total) return [{ label: 'Aprovações', value: data.approvals.total, color: C.azul }]
+        return []
+    }, [data])
 
     return (
         <div className="principal-view" style={{ padding: '4px 24px 24px' }}>
@@ -468,9 +508,9 @@ export function PrincipalView({ scope, vis }: { scope: ScopeMode; vis: Visibilit
                         }}
                     >
                         <Donut title="Tipos de registros" data={typeData} />
-                        <Donut title="Criticidade dos registros" data={critData} />
-                        <VBarChart title="Status das histórias" data={storyData} />
-                        <Donut title="Vulnerabilidades por severidade" data={vulnData} />
+                        <Donut title="Registros sem dono" data={unassignedData} />
+                        <HBarChart title="Status das histórias" data={storyData} />
+                        <Donut title="Aprovações Pendentes" data={approvalsData} unit="APROVAÇÕES" />
                     </div>
 
                     <div className={`sol-grid${layout === 'stack' ? ' stacked' : ''}`}>

@@ -101,6 +101,13 @@ export function buildConsole(mode: ScopeMode, ba: string) {
             const bySeverity = groupBy('sn_vul_vulnerable_item', 'risk_rating', vrScope)
                 .map((r) => ({ label: r.label || r.key || '—', count: r.count }))
                 .sort((a, b) => b.count - a.count)
+            // Vulnerabilidades sem responsável (assigned_to vazio) por risk_rating —
+            // alimenta o card "Registros não atribuídos" (criticidade unificada).
+            const unassignedBySeverity = groupBy(
+                'sn_vul_vulnerable_item',
+                'risk_rating',
+                withScope(vrScope, 'assigned_toISEMPTY'),
+            ).map((r) => ({ label: r.label || r.key || '—', count: r.count }))
             const items =
                 total > 0
                     ? readAll(
@@ -117,9 +124,9 @@ export function buildConsole(mode: ScopeMode, ba: string) {
                           deeplink: deeplink('sn_vul_vulnerable_item', o.sys_id.value),
                       }))
                     : []
-            return { total, bySeverity, items, consoleUrl: '/now/vr-analysis/homepage', consoleLabel: 'Security Exposure Management' }
+            return { total, bySeverity, unassignedBySeverity, items, consoleUrl: '/now/vr-analysis/homepage', consoleLabel: 'Security Exposure Management' }
         },
-        { total: 0, bySeverity: [] as Array<{ label: string; count: number }>, items: [] as any[], consoleUrl: '/now/vr-analysis/homepage', consoleLabel: 'Security Exposure Management' },
+        { total: 0, bySeverity: [] as Array<{ label: string; count: number }>, unassignedBySeverity: [] as Array<{ label: string; count: number }>, items: [] as any[], consoleUrl: '/now/vr-analysis/homepage', consoleLabel: 'Security Exposure Management' },
     )
 
     // Uma única agregação por classe cobre todas as soluções.
@@ -171,8 +178,23 @@ export function buildConsole(mode: ScopeMode, ba: string) {
         }
     })
 
+    // Aprovações pendentes do usuário atual — sysapproval_approver com state=requested.
+    // É pessoal (approver = usuário), independente do escopo meus/time/ambos.
+    const me = currentUserId()
+    const approvals = guard(
+        () => {
+            const where = `approver=${me}^state=requested`
+            const total = countWhere('sysapproval_approver', where)
+            const byType = groupBy('sysapproval_approver', 'sysapproval.sys_class_name', where)
+                .map((r) => ({ label: r.label || (r.key ? typeMeta(r.key).label : '') || '—', count: r.count }))
+                .sort((a, b) => b.count - a.count)
+            return { total, byType }
+        },
+        { total: 0, byType: [] as Array<{ label: string; count: number }> },
+    )
+
     return {
-        user: { id: currentUserId(), name: currentUserName() },
+        user: { id: me, name: currentUserName() },
         scope: mode,
         groups: myGroupIds().length,
         ba,
@@ -180,6 +202,7 @@ export function buildConsole(mode: ScopeMode, ba: string) {
         byPriority,
         storyStatus,
         vr,
+        approvals,
         solutions,
     }
 }
