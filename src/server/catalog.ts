@@ -26,10 +26,16 @@ export const TYPE_META: Record<string, TypeMeta> = {
     rm_defect: { label: 'Defects', product: 'SPM · EAP' },
     sn_si_incident: { label: 'Security Incidents', product: 'SIR' },
     sn_si_task: { label: 'Tarefas de SIR', product: 'SIR' },
+    dmn_demand_task: { label: 'Tarefas de Demanda', product: 'SPM' },
+    planned_task: { label: 'Planned Tasks', product: 'SPM · EAP' },
+    sn_safe_scrum_task: { label: 'SAFe Scrum Tasks', product: 'SPM · SAFe' },
+    sn_safe_story: { label: 'SAFe Stories', product: 'SPM · SAFe' },
     // VR — Vulnerability Response (não herdam de task)
     sn_vul_vulnerable_item: { label: 'Vulnerable Items', product: 'VR' },
     sn_vul_app_vulnerable_item: { label: 'App Vulnerable Items', product: 'VR' },
+    sn_vul_app_vulnerability: { label: 'App Vulnerabilities', product: 'VR' },
     sn_vul_vulnerability: { label: 'Vulnerabilities', product: 'VR' },
+    sn_vul_pen_test_assessment_request: { label: 'Pen Test Requests', product: 'VR' },
 }
 
 export function typeMeta(cls: string, fallbackLabel?: string): TypeMeta {
@@ -38,6 +44,35 @@ export function typeMeta(cls: string, fallbackLabel?: string): TypeMeta {
 
 // Categoria do tipo de registro para a engrenagem do painel.
 export type Category = 'ITSM' | 'SPM' | 'EAP' | 'VR' | 'Plataforma'
+
+// Lista EXPLÍCITA das tabelas que a engrenagem expõe, por categoria (ordem preservada).
+// Definida pelo usuário — substitui a descoberta automática de classes da task.
+export interface GearTable {
+    table: string
+    category: Category
+}
+export const GEAR_TABLES: GearTable[] = [
+    // ITSM
+    { table: 'incident', category: 'ITSM' },
+    { table: 'problem', category: 'ITSM' },
+    { table: 'change_request', category: 'ITSM' },
+    { table: 'change_task', category: 'ITSM' },
+    // SPM (inclui Agile / SAFe)
+    { table: 'pm_project', category: 'SPM' },
+    { table: 'pm_project_task', category: 'SPM' },
+    { table: 'dmn_demand', category: 'SPM' },
+    { table: 'dmn_demand_task', category: 'SPM' },
+    { table: 'rm_story', category: 'SPM' },
+    { table: 'rm_scrum_task', category: 'SPM' },
+    { table: 'planned_task', category: 'SPM' },
+    { table: 'sn_safe_scrum_task', category: 'SPM' },
+    { table: 'sn_safe_story', category: 'SPM' },
+    { table: 'rm_feature', category: 'SPM' },
+    // VR — Vulnerability Response
+    { table: 'sn_vul_app_vulnerable_item', category: 'VR' },
+    { table: 'sn_vul_app_vulnerability', category: 'VR' },
+    { table: 'sn_vul_pen_test_assessment_request', category: 'VR' },
+]
 
 export function categoryOf(table: string): Category {
     if (table.indexOf('sn_vul') === 0) return 'VR'

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-export type ViewMode = 'principal' | 'foco' | 'cockpit' | 'kanban' | 'executivo'
+export type ViewMode = 'principal' | 'historico' | 'meu_time'
 
 export interface ViewDef {
     id: ViewMode
@@ -11,10 +11,8 @@ export interface ViewDef {
 
 export const VIEWS: ViewDef[] = [
     { id: 'principal', label: 'Principal', icon: '◧', hint: 'Cards por solução — ITSM, SPM e Ágil consolidados' },
-    { id: 'foco', label: 'Foco', icon: '☰', hint: 'Sua fila + insights — o dia a dia operacional' },
-    { id: 'cockpit', label: 'Cockpit', icon: '▦', hint: 'Painel analítico com todos os indicadores' },
-    { id: 'kanban', label: 'Kanban', icon: '▤', hint: 'Quadro operacional por situação' },
-    { id: 'executivo', label: 'Executivo', icon: '◉', hint: 'Resumo de uma tela para gestão' },
+    { id: 'historico', label: 'Histórico', icon: '◴', hint: 'Registros fechados e cancelados' },
+    { id: 'meu_time', label: 'Meu time', icon: '◍', hint: 'Meus grupos e a estrutura do time' },
 ]
 
 const STORAGE_KEY = 'painel.viewMode.v1'

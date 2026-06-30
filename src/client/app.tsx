@@ -3,39 +3,22 @@ import './app.css'
 import { Header } from './components/Header'
 import { Settings } from './components/Settings'
 import { ViewSwitcher } from './components/ViewSwitcher'
-import { FocusView } from './components/views/FocusView'
 import { PrincipalView } from './components/views/PrincipalView'
-import { CockpitView } from './components/views/CockpitView'
-import { KanbanView } from './components/views/KanbanView'
-import { ExecutiveView } from './components/views/ExecutiveView'
-import { fetchSummary, fetchList, type Summary, type InboxItem, type ScopeMode } from './shared/api'
-import { DEFAULT_TEMPLATE } from './shared/templates'
+import { HistoricoView } from './components/views/HistoricoView'
+import { MeuTimeView } from './components/views/MeuTimeView'
+import { fetchSummary, type Summary, type ScopeMode } from './shared/api'
 import { useVisibility } from './shared/visibility'
 import { useViewMode } from './shared/views'
-import type { ViewProps } from './components/views/common'
 
 export default function App() {
-    const template = DEFAULT_TEMPLATE
     const [scope, setScope] = useState<ScopeMode>('team')
-    const [lens, setLens] = useState<string>(DEFAULT_TEMPLATE.defaultLens)
     const [summary, setSummary] = useState<Summary | null>(null)
-    const [items, setItems] = useState<InboxItem[]>([])
-    const [loadingList, setLoadingList] = useState(true)
     const [error, setError] = useState<string | null>(null)
 
     const vis = useVisibility()
     const [viewMode, setViewMode] = useViewMode()
 
-    // Cockpit/Kanban/Executivo trabalham com a base completa; só o Foco usa a lente.
-    const listLens = viewMode === 'foco' ? lens : 'all'
-
-    // Drill-down a partir de gráficos: filtra e leva para a visão Foco.
-    const onDrill = (l: string) => {
-        setLens(l)
-        setViewMode('foco')
-    }
-
-    // Summary acompanha o escopo
+    // Summary acompanha o escopo — alimenta o nome no header e a engrenagem.
     useEffect(() => {
         let alive = true
         fetchSummary(scope)
@@ -45,23 +28,6 @@ export default function App() {
             alive = false
         }
     }, [scope])
-
-    // Lista acompanha escopo + lente efetiva
-    useEffect(() => {
-        let alive = true
-        setLoadingList(true)
-        fetchList(scope, listLens, 60, 0)
-            .then((r) => alive && setItems(r.items || []))
-            .catch(() => alive && setItems([]))
-            .finally(() => alive && setLoadingList(false))
-        return () => {
-            alive = false
-        }
-    }, [scope, listLens])
-
-    const viewProps: ViewProps | null = summary
-        ? { summary, vis, template, items, loadingList, lens, onLens: setLens, onDrill }
-        : null
 
     return (
         <div className="app">
@@ -76,22 +42,12 @@ export default function App() {
 
             {error ? <div className="app-error">Falha ao carregar: {error}</div> : null}
 
-            {viewMode === 'principal' ? (
-                <PrincipalView scope={scope} vis={vis} />
-            ) : !viewProps ? (
-                <div className="kpi-strip">
-                    {[0, 1, 2, 3].map((i) => (
-                        <div key={i} className="kpi skeleton" />
-                    ))}
-                </div>
-            ) : viewMode === 'cockpit' ? (
-                <CockpitView {...viewProps} />
-            ) : viewMode === 'kanban' ? (
-                <KanbanView {...viewProps} />
-            ) : viewMode === 'executivo' ? (
-                <ExecutiveView {...viewProps} />
+            {viewMode === 'historico' ? (
+                <HistoricoView scope={scope} vis={vis} />
+            ) : viewMode === 'meu_time' ? (
+                <MeuTimeView />
             ) : (
-                <FocusView {...viewProps} />
+                <PrincipalView scope={scope} vis={vis} />
             )}
 
             <footer className="app-foot">

@@ -1,6 +1,8 @@
 import { buildSummary } from './summary.ts'
 import { buildList } from './list.ts'
 import { buildConsole } from './console.ts'
+import { buildHistorico } from './historico.ts'
+import { buildTeam } from './team.ts'
 import { search } from './aisearch.ts'
 import { ScopeMode } from './identity.ts'
 
@@ -62,6 +64,26 @@ export function getConsole(request: any, response: any) {
         const scope = normalizeScope(qp(request, 'scope', 'both'))
         const ba = qp(request, 'ba', '')
         writeJson(response, buildConsole(scope, ba))
+    } catch (e: any) {
+        writeJson(response, errBody(e), 500)
+    }
+}
+
+// GET /api/x_snc_painel_unif/painel/historico?scope=mine|team|both
+export function getHistorico(request: any, response: any) {
+    try {
+        const scope = normalizeScope(qp(request, 'scope', 'both'))
+        const days = qp(request, 'days', '')
+        writeJson(response, buildHistorico(scope, days))
+    } catch (e: any) {
+        writeJson(response, errBody(e), 500)
+    }
+}
+
+// GET /api/x_snc_painel_unif/painel/team
+export function getTeam(request: any, response: any) {
+    try {
+        writeJson(response, buildTeam())
     } catch (e: any) {
         writeJson(response, errBody(e), 500)
     }

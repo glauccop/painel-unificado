@@ -152,6 +152,33 @@ export interface ConsoleData {
 }
 export const fetchConsole = (scope: ScopeMode, ba = '') => getJson<ConsoleData>('/console', { scope, ba })
 
+export interface HistoricoTypeRow {
+    table: string
+    label: string
+    closed: number
+}
+export interface HistoricoData {
+    scope: ScopeMode
+    byType: HistoricoTypeRow[]
+}
+export const fetchHistorico = (scope: ScopeMode, days = '') => getJson<HistoricoData>('/historico', { scope, days })
+
+export interface TeamMember {
+    sys_id: string
+    name: string
+    email: string
+    last_login: string
+}
+export interface TeamGroup {
+    sys_id: string
+    name: string
+    members: TeamMember[]
+}
+export interface TeamData {
+    groups: TeamGroup[]
+}
+export const fetchTeam = () => getJson<TeamData>('/team', {})
+
 export const fetchSummary = (scope: ScopeMode) => getJson<Summary>('/summary', { scope })
 export const fetchList = (scope: ScopeMode, lens: string, limit = 50, offset = 0) =>
     getJson<ListResult>('/list', { scope, lens, limit: String(limit), offset: String(offset) })

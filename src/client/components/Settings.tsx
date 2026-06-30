@@ -15,11 +15,10 @@ interface Entry {
 }
 
 // Ordem fixa das categorias na engrenagem.
-const CATEGORY_ORDER = ['ITSM', 'SPM', 'EAP', 'VR']
+const CATEGORY_ORDER = ['ITSM', 'SPM', 'VR']
 const CATEGORY_LABEL: Record<string, string> = {
     ITSM: 'ITSM',
-    SPM: 'SPM',
-    EAP: 'EAP — Agile Planning',
+    SPM: 'SPM — Projetos, Demandas e Agile/SAFe',
     VR: 'VR — Vulnerability Response',
 }
 

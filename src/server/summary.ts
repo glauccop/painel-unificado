@@ -1,12 +1,6 @@
 import { countWhere, groupBy, groupBy2, type Group2Row } from './aggregations/util.ts'
 import { ScopeMode, scopeClause, withScope, currentUserId, currentUserName, myGroupIds } from './identity.ts'
-import { typeMeta, categoryOf, type Category } from './catalog.ts'
-
-// Tabelas VR (não herdam de task) que entram na engrenagem como categoria própria.
-const VR_TABLES = ['sn_vul_vulnerable_item', 'sn_vul_app_vulnerable_item', 'sn_vul_vulnerability']
-
-// A engrenagem só lista estas categorias (remove "Plataforma" e todo o ruído).
-const GEAR_CATEGORIES: Category[] = ['ITSM', 'SPM', 'EAP', 'VR']
+import { typeMeta, GEAR_TABLES } from './catalog.ts'
 
 function guard<T>(fn: () => T, fallback: T): T {
     try {
@@ -62,26 +56,13 @@ export function buildSummary(mode: ScopeMode) {
         .sort((a, b) => b.count - a.count)
     const open_total = byTypeRaw.reduce((a, r) => a + r.count, 0)
 
-    // Lista completa de tipos para a engrenagem: todos os tipos da hierarquia task COM registros
-    // na instância (groupBy sem filtro) + tabelas VR, categorizados, com contagem no escopo.
-    const scopeCount: Record<string, number> = {}
-    byTypeRaw.forEach((r) => (scopeCount[r.key] = r.count))
-    const taskTypesRaw = guard(() => groupBy('task', 'sys_class_name'), [])
-    const taskTypes = taskTypesRaw
-        .filter((r) => GEAR_CATEGORIES.indexOf(categoryOf(r.key)) >= 0)
-        .map((r) => {
-            const m = typeMeta(r.key)
-            return { table: r.key, label: m.label, category: categoryOf(r.key), count: scopeCount[r.key] || 0 }
-        })
-        .concat(
-            VR_TABLES.map((t) => ({
-                table: t,
-                label: typeMeta(t).label,
-                category: categoryOf(t),
-                count: guard(() => countWhere(t, withScope(scopeClause(mode), 'active=true')), 0),
-            })),
-        )
-        .sort((a, b) => b.count - a.count)
+    // Tipos da engrenagem: lista EXPLÍCITA (GEAR_TABLES), com contagem por tabela no escopo.
+    const taskTypes = GEAR_TABLES.map((g) => ({
+        table: g.table,
+        label: typeMeta(g.table).label,
+        category: g.category,
+        count: guard(() => countWhere(g.table, withScope(scopeClause(mode), 'active=true')), 0),
+    }))
 
     // Por prioridade — com quebra por classe (byClass) para o Foco respeitar a engrenagem.
     const byPriority = guard(() => byAWithClass(groupBy2('task', 'priority', 'sys_class_name', openScope)), [])

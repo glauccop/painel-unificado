@@ -1,6 +1,6 @@
 import '@servicenow/sdk/global'
 import { RestApi } from '@servicenow/sdk/core'
-import { getSummary, getList, getConsole, getSearch } from '../../server/painel-handler'
+import { getSummary, getList, getConsole, getSearch, getHistorico, getTeam } from '../../server/painel-handler'
 
 // API de leitura. Exige usuário autenticado (não-guest); a autorização por ACL
 // de endpoint fica desligada porque o próprio escopo da query (assigned_to = eu /
@@ -45,6 +45,24 @@ RestApi({
             path: '/search',
             method: 'GET',
             script: getSearch,
+            authentication: true,
+            authorization: false,
+        },
+        {
+            $id: Now.ID['rest_painel_historico'],
+            name: 'Historico',
+            path: '/historico',
+            method: 'GET',
+            script: getHistorico,
+            authentication: true,
+            authorization: false,
+        },
+        {
+            $id: Now.ID['rest_painel_team'],
+            name: 'Team',
+            path: '/team',
+            method: 'GET',
+            script: getTeam,
             authentication: true,
             authorization: false,
         },

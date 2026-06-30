@@ -42,6 +42,10 @@ declare global {
                         table: 'sys_ws_operation'
                         id: 'bd4e3e13de684ec699c81f0d2894a9d7'
                     }
+                    rest_painel_historico: {
+                        table: 'sys_ws_operation'
+                        id: 'f877959538404f73b0c0aa780def5756'
+                    }
                     rest_painel_list: {
                         table: 'sys_ws_operation'
                         id: '617fccbe3ade4efbbc768242bf26f3c6'
@@ -53,6 +57,10 @@ declare global {
                     rest_painel_summary: {
                         table: 'sys_ws_operation'
                         id: '2a553e2546d54381879842587e2cbe4a'
+                    }
+                    rest_painel_team: {
+                        table: 'sys_ws_operation'
+                        id: '45a4a72e983c4e21a3f22e360edf23c8'
                     }
                     src_server_aggregations_util_ts: {
                         table: 'sys_module'
@@ -69,6 +77,10 @@ declare global {
                     src_server_console_ts: {
                         table: 'sys_module'
                         id: 'f6eb63792f1d46e7802bb94b24601204'
+                    }
+                    src_server_historico_ts: {
+                        table: 'sys_module'
+                        id: '640ee67bf1bf4163ae39a682c65f74da'
                     }
                     src_server_identity_ts: {
                         table: 'sys_module'
@@ -89,6 +101,10 @@ declare global {
                     src_server_summary_ts: {
                         table: 'sys_module'
                         id: '1c8dd4bfa77b44329d645dbf2fa5e0a5'
+                    }
+                    src_server_team_ts: {
+                        table: 'sys_module'
+                        id: 'bb11e6f305184f0290b8f90f9857a438'
                     }
                     'x_snc_painel_unif/assets/logo_default.png': {
                         table: 'db_image'
