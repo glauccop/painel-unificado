@@ -2,9 +2,9 @@ import { ScopeMode, scopeClause, withScope } from './identity.ts'
 import { groupBy2 } from './aggregations/util.ts'
 import { typeMeta } from './catalog.ts'
 
-// Aba "Histórico" — construção progressiva.
-// Card 1: tipos de registros FECHADOS (Closed) no escopo do filtro geral
-// (meus / meu time / todos). "Fechado" = active=false e state cujo rótulo NÃO é "cancel".
+// Aba "Histórico".
+// Card 1: tipos de registros FECHADOS (Closed) no escopo do filtro geral + período.
+// "Fechado" = active=false e state cujo rótulo NÃO é "cancel".
 
 function guard<T>(fn: () => T, fallback: T): T {
     try {
@@ -28,15 +28,13 @@ export interface HistoricoTypeRow {
 export function buildHistorico(mode: ScopeMode, days: string = '') {
     let closedScope = withScope(scopeClause(mode), 'active=false')
     const n = parseInt(days, 10)
-    // RELATIVE@day@ago não casa nesta instância; gs.daysAgoStart(N) funciona.
     if (n > 0) closedScope = withScope(closedScope, 'sys_updated_on>=javascript:gs.daysAgoStart(' + n + ')')
 
-    // Fechados por tipo. groupBy2 A=state (display p/ classificar), B=sys_class_name.
     const byType = guard(
         () => {
             const map = new Map<string, HistoricoTypeRow>()
             groupBy2('task', 'state', 'sys_class_name', closedScope).forEach((r) => {
-                if (isCancelled(r.aLabel)) return // só fechados
+                if (isCancelled(r.aLabel)) return
                 const cls = r.b || 'task'
                 let e = map.get(cls)
                 if (!e) {

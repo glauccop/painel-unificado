@@ -3,18 +3,19 @@ import { Inbox } from '../Inbox'
 import { fetchHistorico, fetchList, type HistoricoData, type InboxItem, type ScopeMode } from '../../shared/api'
 import type { Visibility } from '../../shared/visibility'
 
-// Aba "Histórico" — construção progressiva.
-// Card 1: tipos de registros FECHADOS (Closed) vindos do filtro geral (escopo do topo).
-// Clicar numa barra abre, abaixo, a lista dos fechados daquela tabela (deeplink no Inbox).
+// Aba "Histórico".
+// Card "Tipo de Registros — Fechados": tipos de registros FECHADOS vindos do filtro geral
+// (escopo do topo) + período. Abaixo, a lista dos fechados: no load mostra TODOS os tipos;
+// ao clicar numa barra, filtra a lista apenas para aquela tabela (deeplink no Inbox).
 
 const CLOSED_COLOR = '#1c60ab'
 
 const WINDOWS: Array<{ v: string; label: string }> = [
-    { v: 'all', label: 'Todos' },
     { v: '7', label: 'Últimos 7 dias' },
     { v: '14', label: 'Últimos 14 dias' },
     { v: '30', label: 'Últimos 30 dias' },
     { v: '60', label: 'Últimos 60 dias' },
+    { v: 'all', label: 'Todos' },
 ]
 
 const cardStyle: React.CSSProperties = {
@@ -104,7 +105,7 @@ export function HistoricoView({ scope, vis }: { scope: ScopeMode; vis: Visibilit
     const [data, setData] = useState<HistoricoData | null>(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState('')
-    const [windowSel, setWindowSel] = useState('all')
+    const [windowSel, setWindowSel] = useState('7')
 
     const [activeTable, setActiveTable] = useState('')
     const [items, setItems] = useState<InboxItem[]>([])
@@ -123,13 +124,14 @@ export function HistoricoView({ scope, vis }: { scope: ScopeMode; vis: Visibilit
         }
     }, [scope, windowSel])
 
-    // Lista dos fechados da tabela ativa, seguindo escopo + período.
+    // Lista dos fechados, seguindo escopo + período. Sem tabela ativa = TODOS os tipos.
     useEffect(() => {
-        if (!activeTable) {
-            setItems([])
-            return
-        }
-        const lens = windowSel === 'all' ? `closed_type:${activeTable}` : `closed_days:${windowSel}:${activeTable}`
+        const lens =
+            windowSel === 'all'
+                ? activeTable
+                    ? `closed_type:${activeTable}`
+                    : 'closed_all'
+                : `closed_days:${windowSel}` + (activeTable ? `:${activeTable}` : '')
         let alive = true
         setLoadingList(true)
         fetchList(scope, lens, 100, 0)
@@ -142,9 +144,15 @@ export function HistoricoView({ scope, vis }: { scope: ScopeMode; vis: Visibilit
     }, [scope, windowSel, activeTable])
 
     const visibleTypes = (data?.byType || []).filter((t) => vis.isVisible(t.table))
-    // Se a tabela ativa for ocultada na engrenagem, fecha a lista.
+    // Se a tabela ativa for ocultada na engrenagem, volta para "todos os tipos".
     const activeVisible = activeTable && visibleTypes.some((t) => t.table === activeTable)
+    const effectiveTable = activeVisible ? activeTable : ''
     const activeLabel = data?.byType.find((t) => t.table === activeTable)?.label || activeTable
+
+    // Lista respeita a engrenagem: quando "todos os tipos", oculta os tipos desligados.
+    const listItems = effectiveTable ? items : items.filter((it) => vis.isVisible(it.table))
+
+    const periodLabel = windowSel === 'all' ? '(todos os períodos)' : `(últimos ${windowSel} dias)`
 
     return (
         <div className="historico-view" style={{ padding: '4px 24px 24px' }}>
@@ -159,20 +167,18 @@ export function HistoricoView({ scope, vis }: { scope: ScopeMode; vis: Visibilit
                 ) : (
                     <TypeBars
                         data={visibleTypes}
-                        active={activeTable}
+                        active={effectiveTable}
                         onPick={(table) => setActiveTable((t) => (t === table ? '' : table))}
                     />
                 )}
             </div>
 
-            {activeVisible ? (
-                <div style={{ ...cardStyle, marginTop: 16 }}>
-                    <div className="chart-ttl" style={{ marginBottom: 8 }}>
-                        {activeLabel} — fechados {windowSel === 'all' ? '(todos os períodos)' : `(últimos ${windowSel} dias)`}
-                    </div>
-                    <Inbox items={items} loading={loadingList} lens="" lenses={[]} onLens={() => {}} />
+            <div style={{ ...cardStyle, marginTop: 16 }}>
+                <div className="chart-ttl" style={{ marginBottom: 8 }}>
+                    {effectiveTable ? `${activeLabel} — fechados` : 'Todos os tipos — fechados'} {periodLabel}
                 </div>
-            ) : null}
+                <Inbox items={listItems} loading={loadingList} lens="" lenses={[]} onLens={() => {}} />
+            </div>
         </div>
     )
 }
