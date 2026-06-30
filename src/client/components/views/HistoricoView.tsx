@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react'
-import { fetchHistorico, type HistoricoData, type ScopeMode } from '../../shared/api'
+import { Inbox } from '../Inbox'
+import { fetchHistorico, fetchList, type HistoricoData, type InboxItem, type ScopeMode } from '../../shared/api'
 import type { Visibility } from '../../shared/visibility'
 
 // Aba "Histórico" — construção progressiva.
 // Card 1: tipos de registros FECHADOS (Closed) vindos do filtro geral (escopo do topo).
+// Clicar numa barra abre, abaixo, a lista dos fechados daquela tabela (deeplink no Inbox).
 
 const CLOSED_COLOR = '#1c60ab'
 
@@ -53,16 +55,29 @@ function PeriodSelector({ value, onChange }: { value: string; onChange: (v: stri
     )
 }
 
-function TypeBars({ data }: { data: HistoricoData['byType'] }) {
+function TypeBars({ data, active, onPick }: { data: HistoricoData['byType']; active: string; onPick: (table: string) => void }) {
     const max = Math.max(1, ...data.map((d) => d.closed))
     if (!data.length) return <div className="chart-empty">Sem registros fechados no filtro</div>
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, paddingTop: 6 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 4, paddingTop: 6 }}>
             {data.map((d) => (
-                <div key={d.table} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 12 }}>
+                <div
+                    key={d.table}
+                    onClick={() => onPick(d.table)}
+                    title={`Ver ${d.label} fechados`}
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 10,
+                        fontSize: 12,
+                        cursor: 'pointer',
+                        padding: '4px 6px',
+                        borderRadius: 6,
+                        background: active === d.table ? '#eef4fb' : 'transparent',
+                    }}
+                >
                     <span
-                        title={d.label}
-                        style={{ width: 140, flexShrink: 0, color: '#5a6678', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+                        style={{ width: 140, flexShrink: 0, color: active === d.table ? CLOSED_COLOR : '#5a6678', fontWeight: active === d.table ? 700 : 400, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
                     >
                         {d.label}
                     </span>
@@ -91,6 +106,10 @@ export function HistoricoView({ scope, vis }: { scope: ScopeMode; vis: Visibilit
     const [error, setError] = useState('')
     const [windowSel, setWindowSel] = useState('all')
 
+    const [activeTable, setActiveTable] = useState('')
+    const [items, setItems] = useState<InboxItem[]>([])
+    const [loadingList, setLoadingList] = useState(false)
+
     useEffect(() => {
         let alive = true
         setLoading(true)
@@ -104,6 +123,29 @@ export function HistoricoView({ scope, vis }: { scope: ScopeMode; vis: Visibilit
         }
     }, [scope, windowSel])
 
+    // Lista dos fechados da tabela ativa, seguindo escopo + período.
+    useEffect(() => {
+        if (!activeTable) {
+            setItems([])
+            return
+        }
+        const lens = windowSel === 'all' ? `closed_type:${activeTable}` : `closed_days:${windowSel}:${activeTable}`
+        let alive = true
+        setLoadingList(true)
+        fetchList(scope, lens, 100, 0)
+            .then((r) => alive && setItems(r.items || []))
+            .catch(() => alive && setItems([]))
+            .finally(() => alive && setLoadingList(false))
+        return () => {
+            alive = false
+        }
+    }, [scope, windowSel, activeTable])
+
+    const visibleTypes = (data?.byType || []).filter((t) => vis.isVisible(t.table))
+    // Se a tabela ativa for ocultada na engrenagem, fecha a lista.
+    const activeVisible = activeTable && visibleTypes.some((t) => t.table === activeTable)
+    const activeLabel = data?.byType.find((t) => t.table === activeTable)?.label || activeTable
+
     return (
         <div className="historico-view" style={{ padding: '4px 24px 24px' }}>
             {error ? <div className="app-error">Falha ao carregar: {error}</div> : null}
@@ -115,9 +157,22 @@ export function HistoricoView({ scope, vis }: { scope: ScopeMode; vis: Visibilit
                 {loading ? (
                     <div className="chart-empty">Carregando…</div>
                 ) : (
-                    <TypeBars data={(data?.byType || []).filter((t) => vis.isVisible(t.table))} />
+                    <TypeBars
+                        data={visibleTypes}
+                        active={activeTable}
+                        onPick={(table) => setActiveTable((t) => (t === table ? '' : table))}
+                    />
                 )}
             </div>
+
+            {activeVisible ? (
+                <div style={{ ...cardStyle, marginTop: 16 }}>
+                    <div className="chart-ttl" style={{ marginBottom: 8 }}>
+                        {activeLabel} — fechados {windowSel === 'all' ? '(todos os períodos)' : `(últimos ${windowSel} dias)`}
+                    </div>
+                    <Inbox items={items} loading={loadingList} lens="" lenses={[]} onLens={() => {}} />
+                </div>
+            ) : null}
         </div>
     )
 }

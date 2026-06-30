@@ -95,6 +95,8 @@ function buildClosedList(mode: ScopeMode, lens: string, limit: number, offset: n
 
     const items: InboxItem[] = []
     while (gr.next()) {
+        // Só FECHADOS — exclui cancelados pelo rótulo do state (coerente com o card).
+        if ((gr.getDisplayValue('state') || '').toLowerCase().indexOf('cancel') >= 0) continue
         const cls = gr.getValue('sys_class_name') || 'task'
         const sysId = gr.getUniqueValue()
         const m = typeMeta(cls)
